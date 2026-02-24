@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>OTP FC Match Master</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
+    <style>
+        @font-face {
+            font-family: 'Esamanru';
+            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_20-10@1.0/GongGothicMedium.woff') format('woff');
+            font-weight: normal; font-style: normal;
+        }
+        @font-face {
+            font-family: 'Esamanru';
+            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_20-10@1.0/GongGothicBold.woff') format('woff');
+            font-weight: 700; font-style: normal;
+        }
+
+        body { 
+            font-family: 'Esamanru', sans-serif; 
+            background-color: #f1f5f9; 
+            -webkit-tap-highlight-color: transparent;
+            letter-spacing: -0.04em;
+        }
+        
+        .font-black { font-weight: 700; }
+        .font-bold { font-weight: 500; }
+
+        .results-list { display: flex; flex-direction: column; gap: 0.5rem; width: 100%; }
+
+        .match-row { 
+            animation: fadeIn 0.2s ease-out;
+            display: flex; align-items: center;
+            background: white; padding: 1rem 1.25rem;
+            border-radius: 1.25rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .match-row:active { transform: scale(0.995); }
+        .match-completed { background-color: #f1f5f9; border-color: #cbd5e1; opacity: 0.6; }
+        .match-completed .strikethrough { text-decoration: line-through; text-decoration-thickness: 2px; color: #94a3b8 !important; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        select, input { 
+            outline: none; transition: all 0.2s; 
+            border: 2px solid transparent !important;
+            font-family: 'Esamanru', sans-serif;
+            appearance: none;
+        }
+        select:focus, input:focus { border-color: #4f46e5 !important; background-color: white !important; }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.6rem center;
+            background-size: 0.8rem;
+        }
+
+        @media print { .no-print { display: none; } }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCAcQzliuWJTB8vPm9gb0vsyR8pIAx7YTw",
+            authDomain: "otp-fc-check.firebaseapp.com",
+            projectId: "otp-fc-check",
+            storageBucket: "otp-fc-check.firebasestorage.app",
+            messagingSenderId: "907414776392",
+            appId: "1:907414776392:web:0a29a660bb956e5a40467d"
+        };
+
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        const APP_ID = 'otp-fc-attendance';
+
+        const Icon = {
+            Clock: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
+            Court: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M3 14h18m-9-4v4m-7 0V10m14 0v4M5 6h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2z"/></svg>,
+            Settings: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>,
+            ArrowLeft: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>,
+            Users: () => <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>,
+            Check: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg>
+        };
+
+        function App() {
+            const [view, setView] = useState('setup');
+            const [loading, setLoading] = useState(true);
+            const [user, setUser] = useState(null);
+            const [confirmedData, setConfirmedData] = useState(null);
+            const [schedule, setSchedule] = useState({ list: [], stats: {} });
+            const [completedMatches, setCompletedMatches] = useState(new Set());
+            
+            const [config, setConfig] = useState({
+                courtCount: 1,
+                matchDuration: 12,
+                breakDuration: 3,
+                startTime: "08:00",
+                endTime: "10:00",
+                fieldNames: ["A 구장", "B 구장", "C 구장", "D 구장"] 
+            });
+
+            const splitTime = (timeStr) => {
+                const [h, m] = (timeStr || "08:00").split(':');
+                return { h: h || "08", m: m || "00" };
+            };
+
+            const hoursList = Array.from({length: 24}, (_, i) => String(i).padStart(2, '0'));
+            const minutesList = ["00", "10", "20", "30", "40", "50"];
+
+            // 인증 처리 로직 개선 (커스텀 토큰 미스매치 대응)
+            useEffect(() => {
+                const initAuth = async () => {
+                    try {
+                        const token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+                        if (token) {
+                            try {
+                                await auth.signInWithCustomToken(token);
+                            } catch (tokenErr) {
+                                // 토큰 미스매치나 만료 시 익명 로그인으로 전환
+                                await auth.signInAnonymously();
+                            }
+                        } else {
+                            await auth.signInAnonymously();
+                        }
+                    } catch (e) {
+                        console.error("Auth Fail", e);
+                    } finally {
+                        // 인증 시도가 완료되면 데이터 로딩을 위해 loading을 false로 돌리지 않고 auth상태를 기다림
+                    }
+                };
+                initAuth();
+                const unsubscribe = auth.onAuthStateChanged((u) => {
+                    setUser(u);
+                    if (!u) setLoading(false); // 인증 실패 시에도 로딩은 멈춤
+                });
+                return () => unsubscribe();
+            }, []);
+
+            // 데이터 페칭 로직 개선
+            useEffect(() => {
+                if (!user) return;
+                const unsubscribe = db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('team_drafts')
+                    .onSnapshot(snap => {
+                        if (!snap.empty) {
+                            const latest = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+                                .filter(d => d.isConfirmed === true)
+                                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+
+                            if (latest) {
+                                setConfirmedData(latest);
+                                if (latest.meetingTimeRange) {
+                                    const times = latest.meetingTimeRange.split('~').map(s => s.trim());
+                                    if (times.length === 2) {
+                                        setConfig(prev => ({ ...prev, startTime: times[0], endTime: times[1] }));
+                                    }
+                                }
+                            }
+                        }
+                        setLoading(false);
+                    }, (err) => {
+                        console.error("Firestore Error", err);
+                        setLoading(false);
+                    });
+                return () => unsubscribe();
+            }, [user]);
+
+            const generateRoundRobinMatches = (teams) => {
+                let matchPool = [];
+                let teamList = [...teams];
+                if (teamList.length % 2 !== 0) teamList.push("REST_GHOST");
+                const numTeams = teamList.length;
+                const numRounds = numTeams - 1;
+                const half = numTeams / 2;
+                for (let r = 0; r < numRounds; r++) {
+                    let roundMatches = [];
+                    for (let i = 0; i < half; i++) {
+                        const t1 = teamList[i]; const t2 = teamList[numTeams - 1 - i];
+                        if (t1 !== "REST_GHOST" && t2 !== "REST_GHOST") roundMatches.push([t1, t2]);
+                    }
+                    matchPool.push(...roundMatches);
+                    teamList.splice(1, 0, teamList.pop());
+                }
+                return matchPool;
+            };
+
+            const generateMatchTable = () => {
+                if (!confirmedData) return;
+                const teams = confirmedData.teams.map((_, i) => String.fromCharCode(65 + i));
+                const { courtCount, matchDuration, breakDuration, startTime, endTime } = config;
+                let currentTime = new Date(`2024-01-01T${startTime}:00`);
+                const limitTime = new Date(`2024-01-01T${endTime}:00`);
+                const teamStats = {}; teams.forEach(t => teamStats[t] = 0);
+                let sessionList = []; let matchPool = []; let matchIdx = 1;
+                while (currentTime < limitTime) {
+                    if (matchPool.length < courtCount) {
+                        const newPool = generateRoundRobinMatches(teams.sort(() => Math.random() - 0.5));
+                        matchPool.push(...newPool);
+                    }
+                    let sessionMatches = []; let busyTeams = new Set();
+                    for (let i = 0; i < matchPool.length; i++) {
+                        const match = matchPool[i];
+                        if (!busyTeams.has(match[0]) && !busyTeams.has(match[1])) {
+                            sessionMatches.push(match);
+                            busyTeams.add(match[0]); busyTeams.add(match[1]);
+                            teamStats[match[0]]++; teamStats[match[1]]++;
+                            matchPool.splice(i, 1); i--;
+                            if (sessionMatches.length >= courtCount) break;
+                        }
+                    }
+                    if (sessionMatches.length > 0) {
+                        const timeLabel = currentTime.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+                        sessionList.push({ id: matchIdx++, time: timeLabel, matches: sessionMatches, resting: teams.filter(t => !busyTeams.has(t)) });
+                        currentTime = new Date(currentTime.getTime() + (matchDuration + breakDuration) * 60000);
+                    } else break;
+                }
+                setSchedule({ list: sessionList, stats: teamStats });
+                setCompletedMatches(new Set());
+                setView('results');
+            };
+
+            const toggleMatchCompletion = (id) => {
+                const newCompleted = new Set(completedMatches);
+                if (newCompleted.has(id)) newCompleted.delete(id);
+                else newCompleted.add(id);
+                setCompletedMatches(newCompleted);
+            };
+
+            const updateFieldName = (index, value) => {
+                const newFieldNames = [...config.fieldNames];
+                newFieldNames[index] = value;
+                setConfig({ ...config, fieldNames: newFieldNames });
+            };
+
+            if (loading) return (
+                <div className="h-screen flex flex-col items-center justify-center text-slate-400">
+                    <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+                    <p className="font-black text-sm tracking-widest uppercase">OTP FC Syncing...</p>
+                </div>
+            );
+
+            return (
+                <div className="h-screen flex flex-col overflow-hidden bg-slate-50">
+                    <header className="bg-white border-b px-4 py-3 shadow-sm z-50 shrink-0 no-print flex justify-between items-center">
+                        <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-100 shrink-0">
+                                <Icon.Court />
+                            </div>
+                            <div className="leading-none text-left">
+                                <h1 className="text-xl font-black text-indigo-600 tracking-tighter uppercase leading-none">Match Master</h1>
+                                <p className="text-[9px] font-bold text-slate-400 tracking-tight mt-0.5">{confirmedData?.meetingDate} | {confirmedData?.teams.length || 0}개 팀 연동</p>
+                            </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                            {view === 'results' && (
+                                <button onClick={() => setView('setup')} className="px-3 py-2 bg-indigo-50 text-indigo-600 rounded-xl font-black text-xs flex items-center gap-2 hover:bg-indigo-100 transition-all active:scale-95">
+                                    <Icon.Settings /> <span>설정변경</span>
+                                </button>
+                            )}
+                            <button onClick={() => window.print()} className="p-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-400 hover:text-indigo-600 transition-all">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                            </button>
+                        </div>
+                    </header>
+
+                    <main className="flex-1 p-4 md:p-6 overflow-y-auto no-scrollbar">
+                        {view === 'setup' ? (
+                            <div className="max-w-md mx-auto py-4">
+                                <div className="bg-white rounded-[32px] p-8 shadow-xl border border-slate-100">
+                                    <h2 className="text-2xl font-black text-slate-800 mb-8 text-center tracking-tight uppercase">Config</h2>
+                                    <div className="space-y-6 text-left">
+                                        <div className="flex flex-col gap-2">
+                                            <label className="text-[11px] font-black text-slate-400 ml-1 uppercase">코트 운영 수</label>
+                                            <div className="grid grid-cols-4 gap-2">
+                                                {[1, 2, 3, 4].map(num => (
+                                                    <button key={num} onClick={() => setConfig({...config, courtCount: num})} className={`py-4 rounded-2xl font-black text-sm transition-all border-2 ${config.courtCount === num ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-slate-50 text-slate-400 border-transparent hover:bg-slate-100'}`}>
+                                                        {num}개
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-col gap-2">
+                                            <label className="text-[11px] font-black text-slate-400 ml-1 uppercase">구장 이름 설정</label>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                {Array.from({ length: config.courtCount }).map((_, i) => (
+                                                    <input key={i} type="text" className="bg-slate-50 p-3 rounded-2xl font-black text-xs border border-transparent focus:border-indigo-300" value={config.fieldNames[i]} placeholder={`${i+1}번 구장`} onChange={(e) => updateFieldName(i, e.target.value)}/>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="flex flex-col gap-2">
+                                                <label className="text-[11px] font-black text-slate-400 ml-1 uppercase">경기 시간</label>
+                                                <div className="relative"><input type="number" className="w-full bg-slate-50 p-4 rounded-2xl font-black text-lg" value={config.matchDuration} onChange={e => setConfig({...config, matchDuration: parseInt(e.target.value)})}/><span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-black text-slate-300">분</span></div>
+                                            </div>
+                                            <div className="flex flex-col gap-2">
+                                                <label className="text-[11px] font-black text-slate-400 ml-1 uppercase">휴식 시간</label>
+                                                <div className="relative"><input type="number" className="w-full bg-slate-50 p-4 rounded-2xl font-black text-lg" value={config.breakDuration} onChange={e => setConfig({...config, breakDuration: parseInt(e.target.value)})}/><span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-black text-slate-300">분</span></div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-col gap-2">
+                                            <label className="text-[11px] font-black text-slate-400 ml-1 uppercase">진행 시간 (10분 단위)</label>
+                                            <div className="grid grid-cols-2 gap-2 bg-slate-50 p-4 rounded-[28px] border border-slate-100">
+                                                <div className="space-y-1">
+                                                    <span className="text-[9px] font-black text-indigo-400 uppercase ml-1">Start</span>
+                                                    <div className="flex gap-1.5">
+                                                        <select className="flex-1 bg-white p-3 rounded-xl font-black text-sm shadow-sm" value={splitTime(config.startTime).h} onChange={e => setConfig({...config, startTime: `${e.target.value}:${splitTime(config.startTime).m}`})}>{hoursList.map(h => <option key={h} value={h}>{h}시</option>)}</select>
+                                                        <select className="flex-1 bg-white p-3 rounded-xl font-black text-sm shadow-sm" value={splitTime(config.startTime).m} onChange={e => setConfig({...config, startTime: `${splitTime(config.startTime).h}:${e.target.value}`})}>{minutesList.map(m => <option key={m} value={m}>{m}분</option>)}</select>
+                                                    </div>
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <span className="text-[9px] font-black text-rose-400 uppercase ml-1">End</span>
+                                                    <div className="flex gap-1.5">
+                                                        <select className="flex-1 bg-white p-3 rounded-xl font-black text-sm shadow-sm" value={splitTime(config.endTime).h} onChange={e => setConfig({...config, endTime: `${e.target.value}:${splitTime(config.endTime).m}`})}>{hoursList.map(h => <option key={h} value={h}>{h}시</option>)}</select>
+                                                        <select className="flex-1 bg-white p-3 rounded-xl font-black text-sm shadow-sm" value={splitTime(config.endTime).m} onChange={e => setConfig({...config, endTime: `${splitTime(config.endTime).h}:${e.target.value}`})}>{minutesList.map(m => <option key={m} value={m}>{m}분</option>)}</select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button onClick={generateMatchTable} className="w-full mt-10 py-5 bg-indigo-600 text-white rounded-3xl font-black text-lg shadow-xl shadow-indigo-100 active:scale-95 transition-all hover:bg-indigo-700 uppercase tracking-widest text-center">
+                                        매치 테이블 생성
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            /* --- 결과 매치 테이블 화면 --- */
+                            <div className="w-full max-w-[1400px] mx-auto flex flex-col gap-4">
+                                <div className="flex flex-wrap gap-2 justify-center no-print">
+                                    {Object.entries(schedule.stats).map(([team, count], i) => (
+                                        <div key={team} className="bg-white px-4 py-2 rounded-2xl flex items-center gap-2 border border-slate-200 shadow-sm">
+                                            <span className={`w-6 h-6 flex items-center justify-center rounded-lg font-black text-[10px] ${getTeamStyles(team.charCodeAt(0)-65)}`}>{team}</span>
+                                            <span className="text-xs font-black text-slate-600">{count}경기</span>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="results-list">
+                                    {schedule?.list?.map((session) => {
+                                        const isDone = completedMatches.has(session.id);
+                                        return (
+                                            <div key={session.id} onClick={() => toggleMatchCompletion(session.id)} className={`match-row transition-all ${isDone ? 'match-completed' : 'hover:border-indigo-200'}`}>
+                                                <div className="flex flex-col items-center justify-center pr-6 border-r border-slate-100 min-w-[120px] shrink-0 relative">
+                                                    {isDone ? (
+                                                        <div className="flex items-center gap-1 text-red-600 bg-red-50 px-2.5 py-1 rounded-full border border-red-100 mb-1.5 animate-pulse">
+                                                            <Icon.Check /> <span className="text-xs font-black">종료</span>
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-xl font-black text-slate-800 uppercase tracking-tight leading-none mb-1.5">매치 {session.id}</span>
+                                                    )}
+                                                    <span className={`text-xl font-black text-slate-800 tracking-tighter leading-none ${isDone ? 'strikethrough' : ''}`}>{session.time}</span>
+                                                </div>
+
+                                                <div className={`flex flex-1 items-center px-8 gap-10 overflow-x-auto no-scrollbar ${isDone ? 'strikethrough' : ''}`}>
+                                                    {session.matches.map((m, idx) => (
+                                                        <div key={idx} className="flex items-center gap-4 shrink-0 py-1">
+                                                            <div className="flex flex-col items-center justify-center min-w-[65px]">
+                                                                <span className={`text-[13px] font-black tracking-tight leading-none truncate w-full text-center ${isDone ? 'text-slate-400' : 'text-black'}`}>
+                                                                    {config.fieldNames[idx] || `${idx+1}구장`}
+                                                                </span>
+                                                            </div>
+                                                            <div className={`flex items-center gap-3 px-4 py-2 rounded-[24px] border border-slate-100 ${isDone ? 'bg-slate-100' : 'bg-slate-50'}`}>
+                                                                <span className={`w-11 h-11 flex items-center justify-center rounded-xl text-2xl font-black shadow-sm ${getTeamStyles(m[0].charCodeAt(0)-65)} ${isDone ? 'grayscale opacity-40' : ''}`}>{m[0]}</span>
+                                                                <span className={`text-sm font-black italic mx-1 ${isDone ? 'text-slate-300' : 'text-slate-900'}`}>VS</span>
+                                                                <span className={`w-11 h-11 flex items-center justify-center rounded-xl text-2xl font-black shadow-sm ${getTeamStyles(m[1].charCodeAt(0)-65)} ${isDone ? 'grayscale opacity-40' : ''}`}>{m[1]}</span>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+
+                                                {session.resting.length > 0 && (
+                                                    <div className="flex items-center gap-4 pl-6 border-l border-slate-100 shrink-0">
+                                                        <span className={`text-[11px] font-black uppercase tracking-widest px-2.5 py-1.5 rounded-xl ${isDone ? 'bg-slate-200 text-slate-400' : 'bg-amber-50 text-amber-500'}`}>휴식</span>
+                                                        <div className="flex gap-2">
+                                                            {session.resting.map(t => (
+                                                                <span key={t} className={`w-9 h-9 flex items-center justify-center rounded-xl font-black text-base border shadow-sm ${getTeamStyles(t.charCodeAt(0)-65)} ${isDone ? 'grayscale opacity-30' : ''}`}>{t}</span>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                                
+                                <div className="mt-6 p-4 bg-indigo-50 border border-indigo-100 rounded-2xl text-center no-print shadow-sm">
+                                    <p className="text-xs font-bold text-indigo-600 flex items-center justify-center gap-2 uppercase tracking-wide">
+                                        💡 매치 카드를 터치하여 진행 상황을 관리하세요.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+                    </main>
+                    
+                    <footer className="shrink-0 bg-white border-t px-6 py-4 flex justify-between items-center no-print">
+                        <div className="flex items-center gap-4 text-slate-400 text-[9px] font-black uppercase">
+                            <div className="flex items-center gap-1"><Icon.Users /> {confirmedData?.teams?.length || 0}개 팀 연동</div>
+                            <div className="w-px h-3 bg-slate-200"></div>
+                            <div className="flex items-center gap-1"><Icon.Clock /> {config.matchDuration}분 경기/{config.breakDuration}분 휴식</div>
+                        </div>
+                        <div className="text-[10px] font-black text-indigo-300 tracking-tight uppercase">OTP FC Match Master System</div>
+                    </footer>
+                </div>
+            );
+        }
+
+        function getTeamStyles(idx) {
+            const styles = ['bg-pink-500 text-white', 'bg-sky-400 text-white', 'bg-lime-400 text-slate-800', 'bg-yellow-400 text-slate-800', 'bg-blue-600 text-white', 'bg-red-500 text-white'];
+            return styles[idx] || 'bg-slate-400 text-white';
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
