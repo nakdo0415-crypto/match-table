@@ -14,6 +14,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     
     <style>
+        /* 이사만루체 웹폰트 적용 */
         @font-face {
             font-family: 'Esamanru';
             src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_20-10@1.0/GongGothicMedium.woff') format('woff');
@@ -100,7 +101,10 @@
             Settings: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>,
             ArrowLeft: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>,
             Users: () => <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>,
-            Check: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg>
+            Check: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg>,
+            Star: () => <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>,
+            Chart: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>,
+            List: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
         };
 
         function App() {
@@ -110,6 +114,7 @@
             const [confirmedData, setConfirmedData] = useState(null);
             const [schedule, setSchedule] = useState({ list: [], stats: {} });
             const [completedMatches, setCompletedMatches] = useState(new Set());
+            const [selectedMyTeam, setSelectedMyTeam] = useState(null);
             
             const [config, setConfig] = useState({
                 courtCount: 1,
@@ -117,7 +122,9 @@
                 breakDuration: 3,
                 startTime: "08:00",
                 endTime: "10:00",
-                fieldNames: ["A 구장", "B 구장", "C 구장", "D 구장"] 
+                // 최대 6구장까지 지원하도록 확장
+                fieldNames: ["A 구장", "B 구장", "C 구장", "D 구장", "E 구장", "F 구장"],
+                fieldTypes: ["6vs6", "6vs6", "6vs6", "6vs6", "6vs6", "5vs5"] 
             });
 
             const splitTime = (timeStr) => {
@@ -128,36 +135,25 @@
             const hoursList = Array.from({length: 24}, (_, i) => String(i).padStart(2, '0'));
             const minutesList = ["00", "10", "20", "30", "40", "50"];
 
-            // 인증 처리 로직 개선 (커스텀 토큰 미스매치 대응)
             useEffect(() => {
                 const initAuth = async () => {
                     try {
                         const token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
                         if (token) {
-                            try {
-                                await auth.signInWithCustomToken(token);
-                            } catch (tokenErr) {
-                                // 토큰 미스매치나 만료 시 익명 로그인으로 전환
-                                await auth.signInAnonymously();
-                            }
+                            try { await auth.signInWithCustomToken(token); } catch (e) { await auth.signInAnonymously(); }
                         } else {
                             await auth.signInAnonymously();
                         }
-                    } catch (e) {
-                        console.error("Auth Fail", e);
-                    } finally {
-                        // 인증 시도가 완료되면 데이터 로딩을 위해 loading을 false로 돌리지 않고 auth상태를 기다림
-                    }
+                    } catch (e) { console.error("Auth Fail", e); }
                 };
                 initAuth();
                 const unsubscribe = auth.onAuthStateChanged((u) => {
                     setUser(u);
-                    if (!u) setLoading(false); // 인증 실패 시에도 로딩은 멈춤
+                    if (!u) setLoading(false);
                 });
                 return () => unsubscribe();
             }, []);
 
-            // 데이터 페칭 로직 개선
             useEffect(() => {
                 if (!user) return;
                 const unsubscribe = db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('team_drafts')
@@ -171,73 +167,120 @@
                                 setConfirmedData(latest);
                                 if (latest.meetingTimeRange) {
                                     const times = latest.meetingTimeRange.split('~').map(s => s.trim());
-                                    if (times.length === 2) {
-                                        setConfig(prev => ({ ...prev, startTime: times[0], endTime: times[1] }));
-                                    }
+                                    if (times.length === 2) setConfig(prev => ({ ...prev, startTime: times[0], endTime: times[1] }));
                                 }
                             }
                         }
                         setLoading(false);
-                    }, (err) => {
-                        console.error("Firestore Error", err);
-                        setLoading(false);
-                    });
+                    }, (err) => { setLoading(false); });
                 return () => unsubscribe();
             }, [user]);
 
-            const generateRoundRobinMatches = (teams) => {
-                let matchPool = [];
+            const generateRounds = (teams) => {
                 let teamList = [...teams];
                 if (teamList.length % 2 !== 0) teamList.push("REST_GHOST");
                 const numTeams = teamList.length;
                 const numRounds = numTeams - 1;
                 const half = numTeams / 2;
+                
+                let rounds = [];
                 for (let r = 0; r < numRounds; r++) {
                     let roundMatches = [];
                     for (let i = 0; i < half; i++) {
                         const t1 = teamList[i]; const t2 = teamList[numTeams - 1 - i];
                         if (t1 !== "REST_GHOST" && t2 !== "REST_GHOST") roundMatches.push([t1, t2]);
                     }
-                    matchPool.push(...roundMatches);
+                    rounds.push(roundMatches);
                     teamList.splice(1, 0, teamList.pop());
                 }
-                return matchPool;
+                return rounds;
             };
 
             const generateMatchTable = () => {
                 if (!confirmedData) return;
                 const teams = confirmedData.teams.map((_, i) => String.fromCharCode(65 + i));
+                const teamSizes = {};
+                confirmedData.teams.forEach((t, i) => { teamSizes[String.fromCharCode(65 + i)] = t.members.length; });
+
                 const { courtCount, matchDuration, breakDuration, startTime, endTime } = config;
                 let currentTime = new Date(`2024-01-01T${startTime}:00`);
                 const limitTime = new Date(`2024-01-01T${endTime}:00`);
                 const teamStats = {}; teams.forEach(t => teamStats[t] = 0);
-                let sessionList = []; let matchPool = []; let matchIdx = 1;
+                
+                let sessionList = [];
+                let roundIndex = 0;
+                let matchIdx = 1;
+                let allRounds = generateRounds(teams);
+                allRounds = allRounds.sort(() => Math.random() - 0.5);
+
                 while (currentTime < limitTime) {
-                    if (matchPool.length < courtCount) {
-                        const newPool = generateRoundRobinMatches(teams.sort(() => Math.random() - 0.5));
-                        matchPool.push(...newPool);
-                    }
-                    let sessionMatches = []; let busyTeams = new Set();
-                    for (let i = 0; i < matchPool.length; i++) {
-                        const match = matchPool[i];
-                        if (!busyTeams.has(match[0]) && !busyTeams.has(match[1])) {
-                            sessionMatches.push(match);
-                            busyTeams.add(match[0]); busyTeams.add(match[1]);
+                    let currentRoundMatches = [...allRounds[roundIndex % allRounds.length]];
+                    // 라운드 내 매치 순서 셔플하여 구장 고착 방지
+                    currentRoundMatches = currentRoundMatches.sort(() => Math.random() - 0.5);
+                    
+                    let sessionMatches = new Array(courtCount).fill(null);
+                    let restingTeamsInSession = [...teams];
+                    const startOffset = roundIndex % courtCount;
+
+                    for (let i = 0; i < currentRoundMatches.length; i++) {
+                        const match = currentRoundMatches[i];
+                        const hasLargeTeam = teamSizes[match[0]] >= 7 || teamSizes[match[1]] >= 7;
+
+                        let targetFieldIdx = -1;
+                        for (let c = 0; c < courtCount; c++) {
+                            const fieldPos = (c + startOffset) % courtCount;
+                            if (sessionMatches[fieldPos] === null) {
+                                const isBigField = config.fieldTypes[fieldPos] === "6vs6";
+                                if (hasLargeTeam) {
+                                    if (isBigField) { targetFieldIdx = fieldPos; break; }
+                                } else {
+                                    targetFieldIdx = fieldPos; break;
+                                }
+                            }
+                        }
+
+                        if (targetFieldIdx !== -1) {
+                            sessionMatches[targetFieldIdx] = { match, fieldIdx: targetFieldIdx };
+                            restingTeamsInSession = restingTeamsInSession.filter(t => t !== match[0] && t !== match[1]);
                             teamStats[match[0]]++; teamStats[match[1]]++;
-                            matchPool.splice(i, 1); i--;
-                            if (sessionMatches.length >= courtCount) break;
+                            if (sessionMatches.every(m => m !== null)) break;
                         }
                     }
-                    if (sessionMatches.length > 0) {
+
+                    const finalMatches = sessionMatches.filter(m => m !== null);
+
+                    if (finalMatches.length > 0) {
                         const timeLabel = currentTime.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
-                        sessionList.push({ id: matchIdx++, time: timeLabel, matches: sessionMatches, resting: teams.filter(t => !busyTeams.has(t)) });
+                        sessionList.push({ id: matchIdx++, time: timeLabel, matches: finalMatches, resting: restingTeamsInSession });
                         currentTime = new Date(currentTime.getTime() + (matchDuration + breakDuration) * 60000);
+                        roundIndex++;
                     } else break;
                 }
+
                 setSchedule({ list: sessionList, stats: teamStats });
                 setCompletedMatches(new Set());
                 setView('results');
             };
+
+            const calculatedStats = useMemo(() => {
+                if (!schedule.list.length || !confirmedData) return null;
+                const teams = confirmedData.teams.map((_, i) => String.fromCharCode(65 + i));
+                const matchupCounts = {}; const fieldUsage = {}; const totalMatches = {};
+                teams.forEach(t => {
+                    matchupCounts[t] = {}; teams.forEach(opp => { if(t !== opp) matchupCounts[t][opp] = 0; });
+                    fieldUsage[t] = {}; for(let i=0; i<config.courtCount; i++) fieldUsage[t][i] = 0;
+                    totalMatches[t] = 0;
+                });
+                schedule.list.forEach(session => {
+                    session.matches.forEach(m => {
+                        const [t1, t2] = m.match; const fIdx = m.fieldIdx;
+                        matchupCounts[t1][t2]++; matchupCounts[t2][t1]++;
+                        fieldUsage[t1][fIdx]++; fieldUsage[t2][fIdx]++;
+                        totalMatches[t1]++; totalMatches[t2]++;
+                    });
+                });
+                return { matchupCounts, fieldUsage, totalMatches, teams };
+            }, [schedule, confirmedData, config.courtCount]);
 
             const toggleMatchCompletion = (id) => {
                 const newCompleted = new Set(completedMatches);
@@ -252,6 +295,12 @@
                 setConfig({ ...config, fieldNames: newFieldNames });
             };
 
+            const toggleFieldType = (index) => {
+                const newTypes = [...config.fieldTypes];
+                newTypes[index] = newTypes[index] === "6vs6" ? "5vs5" : "6vs6";
+                setConfig({ ...config, fieldTypes: newTypes });
+            };
+
             if (loading) return (
                 <div className="h-screen flex flex-col items-center justify-center text-slate-400">
                     <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-4"></div>
@@ -260,68 +309,79 @@
             );
 
             return (
-                <div className="h-screen flex flex-col overflow-hidden bg-slate-50">
-                    <header className="bg-white border-b px-4 py-3 shadow-sm z-50 shrink-0 no-print flex justify-between items-center">
-                        <div className="flex items-center gap-3">
+                <div className="h-screen flex flex-col overflow-hidden bg-slate-50 text-left">
+                    <header className="bg-white border-b px-4 py-3 shadow-sm z-50 shrink-0 no-print flex flex-col sm:flex-row justify-between items-center gap-3">
+                        <div className="flex items-center gap-3 w-full sm:w-auto">
                             <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-100 shrink-0">
                                 <Icon.Court />
                             </div>
-                            <div className="leading-none text-left">
+                            <div className="leading-none">
                                 <h1 className="text-xl font-black text-indigo-600 tracking-tighter uppercase leading-none">Match Master</h1>
-                                <p className="text-[9px] font-bold text-slate-400 tracking-tight mt-0.5">{confirmedData?.meetingDate} | {confirmedData?.teams.length || 0}개 팀 연동</p>
+                                <p className="text-[9px] font-bold text-slate-400 tracking-tight mt-0.5">{confirmedData?.meetingDate} | {confirmedData?.teams.length || 0}개 팀 데이터 연동</p>
                             </div>
                         </div>
                         
-                        <div className="flex items-center gap-2">
-                            {view === 'results' && (
-                                <button onClick={() => setView('setup')} className="px-3 py-2 bg-indigo-50 text-indigo-600 rounded-xl font-black text-xs flex items-center gap-2 hover:bg-indigo-100 transition-all active:scale-95">
-                                    <Icon.Settings /> <span>설정변경</span>
-                                </button>
+                        <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+                            {schedule.list.length > 0 && (
+                                <div className="flex bg-slate-100 p-1.5 rounded-2xl shadow-inner shrink-0">
+                                    <button onClick={() => setView('results')} className={`px-5 py-2.5 rounded-xl font-black text-xs flex items-center gap-2 transition-all ${view === 'results' ? 'bg-white text-indigo-600 shadow-md scale-105' : 'text-slate-400 hover:text-slate-600'}`}>
+                                        <Icon.List /> <span className="hidden xs:inline">매치표</span>
+                                    </button>
+                                    <button onClick={() => setView('stats')} className={`px-5 py-2.5 rounded-xl font-black text-xs flex items-center gap-2 transition-all ${view === 'stats' ? 'bg-white text-indigo-600 shadow-md scale-105' : 'text-slate-400 hover:text-slate-600'}`}>
+                                        <Icon.Chart /> <span className="hidden xs:inline">통계 데이터</span>
+                                    </button>
+                                </div>
                             )}
-                            <button onClick={() => window.print()} className="p-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-400 hover:text-indigo-600 transition-all">
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                            </button>
+                            <div className="flex items-center gap-2">
+                                <button onClick={() => setView('setup')} className="p-3 bg-slate-50 border border-slate-200 rounded-2xl text-slate-400 hover:text-indigo-600 transition-all active:scale-95 shadow-sm">
+                                    <Icon.Settings />
+                                </button>
+                            </div>
                         </div>
                     </header>
 
                     <main className="flex-1 p-4 md:p-6 overflow-y-auto no-scrollbar">
                         {view === 'setup' ? (
-                            <div className="max-w-md mx-auto py-4">
+                            <div className="max-w-md mx-auto py-4 animate-fade-in">
                                 <div className="bg-white rounded-[32px] p-8 shadow-xl border border-slate-100">
-                                    <h2 className="text-2xl font-black text-slate-800 mb-8 text-center tracking-tight uppercase">Config</h2>
+                                    <h2 className="text-2xl font-black text-slate-800 mb-8 uppercase tracking-tight leading-none text-center">Configuration</h2>
                                     <div className="space-y-6 text-left">
                                         <div className="flex flex-col gap-2">
-                                            <label className="text-[11px] font-black text-slate-400 ml-1 uppercase">코트 운영 수</label>
-                                            <div className="grid grid-cols-4 gap-2">
-                                                {[1, 2, 3, 4].map(num => (
-                                                    <button key={num} onClick={() => setConfig({...config, courtCount: num})} className={`py-4 rounded-2xl font-black text-sm transition-all border-2 ${config.courtCount === num ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-slate-50 text-slate-400 border-transparent hover:bg-slate-100'}`}>
-                                                        {num}개
+                                            <label className="text-[11px] font-black text-slate-400 ml-1 uppercase">코트 운영 수 (최대 6개)</label>
+                                            <div className="grid grid-cols-6 gap-1.5">
+                                                {[1, 2, 3, 4, 5, 6].map(num => (
+                                                    <button key={num} onClick={() => setConfig({...config, courtCount: num})} className={`py-3 rounded-xl font-black text-xs transition-all border-2 ${config.courtCount === num ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-slate-50 text-slate-400 border-transparent hover:bg-slate-100'}`}>
+                                                        {num}
                                                     </button>
                                                 ))}
                                             </div>
                                         </div>
 
-                                        <div className="flex flex-col gap-2">
-                                            <label className="text-[11px] font-black text-slate-400 ml-1 uppercase">구장 이름 설정</label>
-                                            <div className="grid grid-cols-2 gap-2">
+                                        <div className="flex flex-col gap-3">
+                                            <label className="text-[11px] font-black text-slate-400 ml-1 uppercase">구장 이름 및 타입 설정</label>
+                                            <div className="grid grid-cols-1 gap-2 max-h-[250px] overflow-y-auto no-scrollbar pr-1">
                                                 {Array.from({ length: config.courtCount }).map((_, i) => (
-                                                    <input key={i} type="text" className="bg-slate-50 p-3 rounded-2xl font-black text-xs border border-transparent focus:border-indigo-300" value={config.fieldNames[i]} placeholder={`${i+1}번 구장`} onChange={(e) => updateFieldName(i, e.target.value)}/>
+                                                    <div key={i} className="flex gap-2 items-center bg-slate-50 p-1 rounded-2xl border border-slate-100">
+                                                        <input type="text" className="flex-1 bg-white p-3 rounded-xl font-black text-xs border border-transparent focus:border-indigo-300 shadow-sm" value={config.fieldNames[i]} placeholder={`${i+1}번 구장`} onChange={(e) => updateFieldName(i, e.target.value)}/>
+                                                        <button onClick={() => toggleFieldType(i)} className={`px-4 py-3 rounded-xl font-black text-[10px] shrink-0 transition-all border-2 ${config.fieldTypes[i] === "6vs6" ? "bg-indigo-50 border-indigo-200 text-indigo-600" : "bg-rose-50 border-rose-200 text-rose-600"}`}>{config.fieldTypes[i]}</button>
+                                                    </div>
                                                 ))}
                                             </div>
+                                            <p className="text-[10px] font-bold text-slate-400 ml-1 leading-relaxed">※ 5vs5 구장에는 7명 팀이 배정되지 않습니다. (현재 연동 데이터 기준 자동 계산)</p>
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="flex flex-col gap-2">
                                                 <label className="text-[11px] font-black text-slate-400 ml-1 uppercase">경기 시간</label>
-                                                <div className="relative"><input type="number" className="w-full bg-slate-50 p-4 rounded-2xl font-black text-lg" value={config.matchDuration} onChange={e => setConfig({...config, matchDuration: parseInt(e.target.value)})}/><span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-black text-slate-300">분</span></div>
+                                                <div className="relative group"><input type="number" className="w-full bg-slate-50 p-4 rounded-2xl font-black text-lg" value={config.matchDuration} onChange={e => setConfig({...config, matchDuration: parseInt(e.target.value)})}/><span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-black text-slate-300">분</span></div>
                                             </div>
                                             <div className="flex flex-col gap-2">
                                                 <label className="text-[11px] font-black text-slate-400 ml-1 uppercase">휴식 시간</label>
-                                                <div className="relative"><input type="number" className="w-full bg-slate-50 p-4 rounded-2xl font-black text-lg" value={config.breakDuration} onChange={e => setConfig({...config, breakDuration: parseInt(e.target.value)})}/><span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-black text-slate-300">분</span></div>
+                                                <div className="relative group"><input type="number" className="w-full bg-slate-50 p-4 rounded-2xl font-black text-lg" value={config.breakDuration} onChange={e => setConfig({...config, breakDuration: parseInt(e.target.value)})}/><span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-black text-slate-300">분</span></div>
                                             </div>
                                         </div>
 
-                                        <div className="flex flex-col gap-2">
+                                        <div className="flex flex-col gap-2 text-left">
                                             <label className="text-[11px] font-black text-slate-400 ml-1 uppercase">진행 시간 (10분 단위)</label>
                                             <div className="grid grid-cols-2 gap-2 bg-slate-50 p-4 rounded-[28px] border border-slate-100">
                                                 <div className="space-y-1">
@@ -341,59 +401,84 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <button onClick={generateMatchTable} className="w-full mt-10 py-5 bg-indigo-600 text-white rounded-3xl font-black text-lg shadow-xl shadow-indigo-100 active:scale-95 transition-all hover:bg-indigo-700 uppercase tracking-widest text-center">
+                                    <button onClick={generateMatchTable} className="w-full mt-10 py-5 bg-indigo-600 text-white rounded-3xl font-black text-lg shadow-xl shadow-indigo-100 active:scale-95 transition-all hover:bg-indigo-700 uppercase tracking-widest text-center border-none outline-none">
                                         매치 테이블 생성
                                     </button>
                                 </div>
                             </div>
-                        ) : (
-                            /* --- 결과 매치 테이블 화면 --- */
-                            <div className="w-full max-w-[1400px] mx-auto flex flex-col gap-4">
-                                <div className="flex flex-wrap gap-2 justify-center no-print">
-                                    {Object.entries(schedule.stats).map(([team, count], i) => (
-                                        <div key={team} className="bg-white px-4 py-2 rounded-2xl flex items-center gap-2 border border-slate-200 shadow-sm">
-                                            <span className={`w-6 h-6 flex items-center justify-center rounded-lg font-black text-[10px] ${getTeamStyles(team.charCodeAt(0)-65)}`}>{team}</span>
-                                            <span className="text-xs font-black text-slate-600">{count}경기</span>
-                                        </div>
-                                    ))}
+                        ) : view === 'results' ? (
+                            <div className="w-full max-w-[1400px] mx-auto flex flex-col gap-4 animate-fade-in pb-20">
+                                <div className="bg-white p-3 rounded-[24px] border border-slate-200 shadow-sm no-print text-left">
+                                    <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+                                        <button onClick={() => setSelectedMyTeam(null)} className={`px-4 py-2 rounded-xl font-black text-xs shrink-0 transition-all ${selectedMyTeam === null ? 'bg-slate-900 text-white shadow-md' : 'bg-slate-100 text-slate-400'}`}>전체보기</button>
+                                        <div className="w-px h-5 bg-slate-200 shrink-0 mx-1"></div>
+                                        {confirmedData?.teams.map((t, i) => {
+                                            const teamName = String.fromCharCode(65 + i);
+                                            const isActive = selectedMyTeam === teamName;
+                                            const isLight = teamName === 'C' || teamName === 'D';
+                                            return (
+                                                <button key={teamName} onClick={() => setSelectedMyTeam(teamName)} className={`px-5 py-2 rounded-xl font-black text-xs shrink-0 flex items-center gap-1.5 transition-all shadow-sm ${isActive ? 'ring-4 ring-slate-900/10 scale-105 z-10' : 'opacity-80'}`} style={{ backgroundColor: getTeamBaseColor(i), color: isLight ? '#1e293b' : 'white' }}>
+                                                    {isActive && <Icon.Star />}
+                                                    <span>{teamName}팀 ({t.members.length}명)</span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
 
                                 <div className="results-list">
                                     {schedule?.list?.map((session) => {
                                         const isDone = completedMatches.has(session.id);
+                                        let displayMatches = session.matches;
+                                        let isResting = session.resting.includes(selectedMyTeam);
+                                        if (selectedMyTeam) displayMatches = session.matches.filter(m => m.match.includes(selectedMyTeam));
+                                        if (selectedMyTeam && displayMatches.length === 0 && !isResting) return null;
+
                                         return (
                                             <div key={session.id} onClick={() => toggleMatchCompletion(session.id)} className={`match-row transition-all ${isDone ? 'match-completed' : 'hover:border-indigo-200'}`}>
-                                                <div className="flex flex-col items-center justify-center pr-6 border-r border-slate-100 min-w-[120px] shrink-0 relative">
+                                                <div className="flex flex-col items-center justify-center pr-6 border-r border-slate-100 min-w-[120px] shrink-0 relative text-left">
                                                     {isDone ? (
                                                         <div className="flex items-center gap-1 text-red-600 bg-red-50 px-2.5 py-1 rounded-full border border-red-100 mb-1.5 animate-pulse">
                                                             <Icon.Check /> <span className="text-xs font-black">종료</span>
                                                         </div>
                                                     ) : (
-                                                        <span className="text-xl font-black text-slate-800 uppercase tracking-tight leading-none mb-1.5">매치 {session.id}</span>
+                                                        <span className="text-xl font-black text-slate-800 uppercase tracking-tight leading-none mb-1.5 font-black">매치 {session.id}</span>
                                                     )}
-                                                    <span className={`text-xl font-black text-slate-800 tracking-tighter leading-none ${isDone ? 'strikethrough' : ''}`}>{session.time}</span>
+                                                    <span className={`text-xl font-black text-slate-800 tracking-tighter leading-none font-black ${isDone ? 'strikethrough' : ''}`}>{session.time}</span>
                                                 </div>
 
                                                 <div className={`flex flex-1 items-center px-8 gap-10 overflow-x-auto no-scrollbar ${isDone ? 'strikethrough' : ''}`}>
-                                                    {session.matches.map((m, idx) => (
-                                                        <div key={idx} className="flex items-center gap-4 shrink-0 py-1">
-                                                            <div className="flex flex-col items-center justify-center min-w-[65px]">
-                                                                <span className={`text-[13px] font-black tracking-tight leading-none truncate w-full text-center ${isDone ? 'text-slate-400' : 'text-black'}`}>
-                                                                    {config.fieldNames[idx] || `${idx+1}구장`}
-                                                                </span>
-                                                            </div>
-                                                            <div className={`flex items-center gap-3 px-4 py-2 rounded-[24px] border border-slate-100 ${isDone ? 'bg-slate-100' : 'bg-slate-50'}`}>
-                                                                <span className={`w-11 h-11 flex items-center justify-center rounded-xl text-2xl font-black shadow-sm ${getTeamStyles(m[0].charCodeAt(0)-65)} ${isDone ? 'grayscale opacity-40' : ''}`}>{m[0]}</span>
-                                                                <span className={`text-sm font-black italic mx-1 ${isDone ? 'text-slate-300' : 'text-slate-900'}`}>VS</span>
-                                                                <span className={`w-11 h-11 flex items-center justify-center rounded-xl text-2xl font-black shadow-sm ${getTeamStyles(m[1].charCodeAt(0)-65)} ${isDone ? 'grayscale opacity-40' : ''}`}>{m[1]}</span>
+                                                    {isResting ? (
+                                                        <div className="flex flex-1 justify-center items-center gap-3">
+                                                            <div className="bg-amber-100 px-6 py-2 rounded-2xl border border-amber-200 flex items-center gap-3 shadow-sm">
+                                                                <span className="text-sm font-black text-amber-600 uppercase tracking-widest font-black italic">이번판 {selectedMyTeam}팀 휴식</span>
+                                                                <Icon.Clock />
                                                             </div>
                                                         </div>
-                                                    ))}
+                                                    ) : (
+                                                        displayMatches.map((m, idx) => (
+                                                            <div key={idx} className="flex items-center gap-4 shrink-0 py-1">
+                                                                <div className="flex flex-col items-center justify-center min-w-[70px]">
+                                                                    <span className={`text-[14px] font-black tracking-tight leading-none truncate w-full text-center font-black ${isDone ? 'text-slate-400' : 'text-black'}`}>
+                                                                        {config.fieldNames[m.fieldIdx] || `${m.fieldIdx+1}구장`}
+                                                                    </span>
+                                                                    <span className={`text-[9px] font-bold mt-1.5 px-2 py-0.5 rounded-md border ${config.fieldTypes[m.fieldIdx] === '5vs5' ? 'bg-rose-50 text-rose-500 border-rose-100' : 'bg-indigo-50 text-indigo-500 border-indigo-100'}`}>
+                                                                        {config.fieldTypes[m.fieldIdx]}
+                                                                    </span>
+                                                                </div>
+                                                                <div className={`flex items-center gap-3 px-5 py-2.5 rounded-[24px] border border-slate-100 shadow-sm ${isDone ? 'bg-slate-100' : 'bg-slate-50'}`}>
+                                                                    <span className={`w-12 h-12 flex items-center justify-center rounded-xl text-2xl font-black shadow-md ${getTeamStyles(m.match[0].charCodeAt(0)-65)} ${isDone ? 'grayscale opacity-40' : ''} ${selectedMyTeam && m.match[0] !== selectedMyTeam ? 'opacity-40 scale-90' : ''}`}>{m.match[0]}</span>
+                                                                    <span className={`text-base font-black italic mx-2 drop-shadow-sm ${isDone ? 'text-slate-300' : 'text-slate-900'}`}>VS</span>
+                                                                    <span className={`w-12 h-12 flex items-center justify-center rounded-xl text-2xl font-black shadow-md ${getTeamStyles(m.match[1].charCodeAt(0)-65)} ${isDone ? 'grayscale opacity-40' : ''} ${selectedMyTeam && m.match[1] !== selectedMyTeam ? 'opacity-40 scale-90' : ''}`}>{m.match[1]}</span>
+                                                                </div>
+                                                            </div>
+                                                        ))
+                                                    )}
                                                 </div>
 
-                                                {session.resting.length > 0 && (
+                                                {!selectedMyTeam && session.resting.length > 0 && (
                                                     <div className="flex items-center gap-4 pl-6 border-l border-slate-100 shrink-0">
-                                                        <span className={`text-[11px] font-black uppercase tracking-widest px-2.5 py-1.5 rounded-xl ${isDone ? 'bg-slate-200 text-slate-400' : 'bg-amber-50 text-amber-500'}`}>휴식</span>
+                                                        <span className={`text-[11px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl font-black ${isDone ? 'bg-slate-200 text-slate-400' : 'bg-amber-100 text-amber-600'}`}>휴식</span>
                                                         <div className="flex gap-2">
                                                             {session.resting.map(t => (
                                                                 <span key={t} className={`w-9 h-9 flex items-center justify-center rounded-xl font-black text-base border shadow-sm ${getTeamStyles(t.charCodeAt(0)-65)} ${isDone ? 'grayscale opacity-30' : ''}`}>{t}</span>
@@ -405,18 +490,97 @@
                                         );
                                     })}
                                 </div>
-                                
-                                <div className="mt-6 p-4 bg-indigo-50 border border-indigo-100 rounded-2xl text-center no-print shadow-sm">
-                                    <p className="text-xs font-bold text-indigo-600 flex items-center justify-center gap-2 uppercase tracking-wide">
-                                        💡 매치 카드를 터치하여 진행 상황을 관리하세요.
-                                    </p>
+                            </div>
+                        ) : (
+                            <div className="w-full max-w-[1200px] mx-auto flex flex-col gap-8 animate-fade-in pb-20">
+                                <div className="bg-white rounded-[32px] p-8 shadow-sm border border-slate-200 text-center">
+                                    <h3 className="text-lg font-black text-slate-800 mb-6 flex items-center gap-2 leading-none uppercase tracking-tight">
+                                        <Icon.Chart /> 팀별 총 경기 수
+                                    </h3>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 text-center">
+                                        {calculatedStats.teams.map((t, i) => (
+                                            <div key={t} className="p-5 rounded-3xl bg-slate-50 border border-slate-100 shadow-sm transition-transform hover:scale-105">
+                                                <span className={`w-10 h-10 flex items-center justify-center rounded-xl font-black text-xl mx-auto mb-2 shadow-sm ${getTeamStyles(t.charCodeAt(0)-65)}`}>{t}</span>
+                                                <div className="text-3xl font-black text-slate-800 font-black">{calculatedStats.totalMatches[t]}</div>
+                                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Total Games</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    <div className="bg-white rounded-[32px] p-8 shadow-sm border border-slate-200 text-left">
+                                        <h3 className="text-lg font-black text-slate-800 mb-6 flex items-center gap-2 leading-none uppercase tracking-tight font-black">
+                                            <Icon.Court /> 구장 사용 빈도
+                                        </h3>
+                                        <div className="overflow-x-auto no-scrollbar">
+                                            <table className="w-full text-center border-separate border-spacing-y-2">
+                                                <thead>
+                                                    <tr className="text-[11px] font-black text-slate-400 uppercase tracking-widest">
+                                                        <th className="pb-3 text-left pl-4 font-black">Team</th>
+                                                        {Array.from({ length: config.courtCount }).map((_, i) => (
+                                                            <th key={i} className="pb-3 px-2 text-black font-black">{config.fieldNames[i] || `${i+1}구장`}</th>
+                                                        ))}
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {calculatedStats.teams.map(t => (
+                                                        <tr key={t} className="bg-slate-50 hover:bg-slate-100 transition-colors">
+                                                            <td className="py-4 pl-4 text-left rounded-l-2xl border-y border-l border-slate-100">
+                                                                <span className={`px-2.5 py-1.5 rounded-lg font-black text-xs ${getTeamStyles(t.charCodeAt(0)-65)}`}>{t}팀</span>
+                                                            </td>
+                                                            {Array.from({ length: config.courtCount }).map((_, i) => (
+                                                                <td key={i} className={`py-4 px-2 font-black border-y border-slate-100 ${calculatedStats.fieldUsage[t][i] === 0 ? 'text-slate-300' : 'text-slate-800 font-black'}`}>
+                                                                    {calculatedStats.fieldUsage[t][i]}
+                                                                </td>
+                                                            ))}
+                                                            <td className="rounded-r-2xl border-y border-r border-slate-100"></td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-white rounded-[32px] p-8 shadow-sm border border-slate-200 text-left">
+                                        <h3 className="text-lg font-black text-slate-800 mb-6 flex items-center gap-2 leading-none uppercase tracking-tight font-black">
+                                            <Icon.Users /> 상대 팀 매칭 횟수
+                                        </h3>
+                                        <div className="overflow-x-auto no-scrollbar">
+                                            <table className="w-full text-center border-separate border-spacing-y-2">
+                                                <thead>
+                                                    <tr className="text-[11px] font-black text-slate-400 uppercase tracking-widest">
+                                                        <th className="pb-3 text-left pl-4 font-black">Team</th>
+                                                        {calculatedStats.teams.map(t => (
+                                                            <th key={t} className="pb-3 px-2 font-black">{t}</th>
+                                                        ))}
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {calculatedStats.teams.map(t => (
+                                                        <tr key={t} className="bg-slate-50 hover:bg-slate-100 transition-colors">
+                                                            <td className="py-4 pl-4 text-left rounded-l-2xl border-y border-l border-slate-100">
+                                                                <span className={`px-2.5 py-1.5 rounded-lg font-black text-xs ${getTeamStyles(t.charCodeAt(0)-65)}`}>{t}팀</span>
+                                                            </td>
+                                                            {calculatedStats.teams.map(opp => (
+                                                                <td key={opp} className={`py-4 px-2 font-black border-y border-slate-100 ${t === opp ? 'bg-slate-200/50' : (calculatedStats.matchupCounts[t][opp] === 0 ? 'text-slate-300' : 'text-slate-800 font-black')}`}>
+                                                                    {t === opp ? '-' : calculatedStats.matchupCounts[t][opp]}
+                                                                </td>
+                                                            ))}
+                                                            <td className="rounded-r-2xl border-y border-r border-slate-100"></td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         )}
                     </main>
                     
-                    <footer className="shrink-0 bg-white border-t px-6 py-4 flex justify-between items-center no-print">
-                        <div className="flex items-center gap-4 text-slate-400 text-[9px] font-black uppercase">
+                    <footer className="shrink-0 bg-white border-t px-6 py-4 flex justify-between items-center no-print text-left">
+                        <div className="flex items-center gap-4 text-slate-400 text-[10px] font-black uppercase">
                             <div className="flex items-center gap-1"><Icon.Users /> {confirmedData?.teams?.length || 0}개 팀 연동</div>
                             <div className="w-px h-3 bg-slate-200"></div>
                             <div className="flex items-center gap-1"><Icon.Clock /> {config.matchDuration}분 경기/{config.breakDuration}분 휴식</div>
@@ -425,6 +589,11 @@
                     </footer>
                 </div>
             );
+        }
+
+        function getTeamBaseColor(idx) {
+            const colors = ['#ec4899', '#38bdf8', '#a3e635', '#facc15', '#2563eb', '#ef4444'];
+            return colors[idx] || '#64748b';
         }
 
         function getTeamStyles(idx) {
