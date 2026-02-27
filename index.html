@@ -36,26 +36,26 @@
         .font-black { font-weight: 700; }
         .font-bold { font-weight: 500; }
 
-        .results-list { display: flex; flex-direction: column; gap: 0.75rem; width: 100%; }
+        .results-list { display: flex; flex-direction: column; gap: 0.25rem; width: 100%; }
 
         .match-row { 
             animation: fadeIn 0.3s ease-out;
-            display: flex; align-items: center; flex-wrap: nowrap;
-            background: white; padding: 0.875rem 1rem;
-            border-radius: 1.25rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            display: flex; align-items: stretch;
+            background: white; padding: 0.35rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
             border: 1px solid #e2e8f0;
             transition: all 0.2s ease;
             cursor: pointer;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
+            width: 100%;
+            overflow: hidden;
         }
         
-        .match-row:active { transform: scale(0.98); background-color: #f1f5f9; }
-        .match-completed { background-color: #f1f5f9; border-color: #cbd5e1; opacity: 0.6; }
-        .match-completed .strikethrough { text-decoration: line-through; text-decoration-thickness: 2px; color: #94a3b8 !important; }
+        .match-row:active { transform: scale(0.995); background-color: #f1f5f9; }
+        .match-completed { background-color: #f1f5f9; border-color: #cbd5e1; opacity: 0.5; }
+        .match-completed .strikethrough { text-decoration: line-through; text-decoration-thickness: 1.5px; color: #94a3b8 !important; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-in { animation: fadeIn 0.4s ease-out; }
         
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -79,14 +79,9 @@
         select {
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: right 0.75rem center;
-            background-size: 0.9rem;
-            padding-right: 2rem !important;
-        }
-
-        @media (min-width: 768px) {
-            .results-list { gap: 1rem; }
-            .match-row { padding: 1.25rem 1.5rem; }
+            background-position: right 0.4rem center;
+            background-size: 0.7rem;
+            padding-right: 1.25rem !important;
         }
 
         @media print { .no-print { display: none; } }
@@ -120,12 +115,8 @@
 
         function getTeamStyles(idx) {
             const styles = [
-                'bg-pink-500 text-white', 
-                'bg-sky-400 text-white', 
-                'bg-lime-400 text-slate-800', 
-                'bg-yellow-400 text-slate-800', 
-                'bg-blue-600 text-white', 
-                'bg-red-500 text-white'
+                'bg-pink-500 text-white', 'bg-sky-400 text-white', 'bg-lime-400 text-slate-800', 
+                'bg-yellow-400 text-slate-800', 'bg-blue-600 text-white', 'bg-red-500 text-white'
             ];
             return styles[idx] || 'bg-slate-400 text-white';
         }
@@ -133,18 +124,17 @@
         const Icon = {
             Clock: ({size=16}) => <svg width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
             Court: ({size=20}) => <svg width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M3 14h18m-9-4v4m-7 0V10m14 0v4M5 6h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2z"/></svg>,
-            Settings: ({size=20}) => <svg width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>,
+            Settings: ({size=20}) => <svg width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>,
             Check: ({size=16}) => <svg width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg>,
             Star: ({size=14}) => <svg width={size} height={size} fill="currentColor" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>,
             Chart: ({size=16}) => <svg width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>,
             List: ({size=16}) => <svg width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>,
             Users: ({size=16}) => <svg width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>,
             Trash: ({size=14}) => <svg width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>,
-            Bookmark: ({size=14}) => <svg width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>,
-            Plus: ({size=14}) => <svg width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"/></svg>,
-            Minus: ({size=14}) => <svg width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4"/></svg>,
             Save: ({size=16}) => <svg width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>,
-            Download: ({size=16}) => <svg width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            Download: ({size=16}) => <svg width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>,
+            Plus: ({size=14}) => <svg width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"/></svg>,
+            Minus: ({size=14}) => <svg width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4"/></svg>
         };
 
         function App() {
@@ -155,20 +145,16 @@
             const [schedule, setSchedule] = useState({ list: [], stats: {} });
             const [completedMatches, setCompletedMatches] = useState(new Set());
             const [selectedMyTeam, setSelectedMyTeam] = useState(null);
-            
             const [presets, setPresets] = useState([]);
             const [isPresetModalOpen, setIsPresetModalOpen] = useState(false);
-            const [presetForm, setPresetForm] = useState({
-                name: '', courtCount: 3, fieldNames: ["1구장", "2구장", "3구장"], fieldTypes: ["6vs6", "6vs6", "6vs6"]
-            });
+            const [presetForm, setPresetForm] = useState({ name: '', courtCount: 3, fieldNames: ["1구장", "2구장", "3구장"], fieldTypes: ["6vs6", "6vs6", "6vs6"] });
             const [presetToDelete, setPresetToDelete] = useState(null);
-
             const [selectedPresetId, setSelectedPresetId] = useState('manual');
             const [presetToggles, setPresetToggles] = useState([]);
-
             const [savedSchedules, setSavedSchedules] = useState([]);
             const [isLoadModalOpen, setIsLoadModalOpen] = useState(false);
             const [isSaving, setIsSaving] = useState(false);
+            const [scheduleToDelete, setScheduleToDelete] = useState(null);
 
             const [config, setConfig] = useState({
                 courtCount: 3, matchDuration: 12, breakDuration: 3,
@@ -185,7 +171,7 @@
             const hoursList = Array.from({length: 24}, (_, i) => String(i).padStart(2, '0'));
             const minutesList = ["00", "10", "20", "30", "40", "50"];
 
-            // 1. Auth Init
+            // --- Authentication ---
             useEffect(() => {
                 const initAuth = async () => {
                     try {
@@ -205,173 +191,122 @@
                 return () => unsubscribe();
             }, []);
 
-            // 2. Data Fetching
+            // --- Data Fetching ---
             useEffect(() => {
                 if (!user) return;
-                
-                const unsubTeams = db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('team_drafts')
-                    .onSnapshot(snap => {
-                        if (!snap.empty) {
-                            const drafts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                            const latest = drafts.filter(d => d.isConfirmed === true)
-                                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
-                            if (latest) setConfirmedData(latest);
-                        }
-                    });
-
-                const unsubPresets = db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('court_presets')
-                    .onSnapshot(snap => {
-                        const loaded = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                        setPresets(loaded.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)));
-                    });
-
-                const unsubSaved = db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('match_schedules')
-                    .onSnapshot(snap => {
-                        const loaded = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                        setSavedSchedules(loaded.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
-                    });
-
+                const unsubTeams = db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('team_drafts').onSnapshot(snap => {
+                    if (!snap.empty) {
+                        const drafts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                        const latest = drafts.filter(d => d.isConfirmed === true).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+                        if (latest) setConfirmedData(latest);
+                    }
+                });
+                const unsubPresets = db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('court_presets').onSnapshot(snap => {
+                    setPresets(snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)));
+                });
+                const unsubSaved = db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('match_schedules').onSnapshot(snap => {
+                    setSavedSchedules(snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+                });
                 return () => { unsubTeams(); unsubPresets(); unsubSaved(); }
             }, [user]);
 
-            // Save Function
             const saveMatchSchedule = async () => {
                 if (!schedule.list.length) return;
                 setIsSaving(true);
                 try {
-                    const dataToSave = {
-                        schedule,
-                        config,
-                        completedMatches: Array.from(completedMatches),
-                        selectedMyTeam,
-                        createdAt: new Date().toISOString(),
+                    await db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('match_schedules').add({
+                        schedule, config, completedMatches: Array.from(completedMatches),
+                        selectedMyTeam, createdAt: new Date().toISOString(),
                         meetingDate: confirmedData?.meetingDate || 'Unknown Date',
                         label: `${confirmedData?.meetingDate || '매치'} (${schedule.list.length}세션)`
-                    };
-                    await db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('match_schedules').add(dataToSave);
+                    });
                     alert('매치 테이블이 성공적으로 저장되었습니다.');
-                } catch (e) {
-                    console.error(e);
-                    alert('저장 중 오류가 발생했습니다.');
-                } finally {
-                    setIsSaving(false);
-                }
+                } catch (e) { console.error(e); } finally { setIsSaving(false); }
             };
 
-            // Load Function
             const loadMatchSchedule = (savedData) => {
-                setSchedule(savedData.schedule);
-                setConfig(savedData.config);
+                setSchedule(savedData.schedule); setConfig(savedData.config);
                 setCompletedMatches(new Set(savedData.completedMatches || []));
                 setSelectedMyTeam(savedData.selectedMyTeam || null);
-                setView('results');
-                setIsLoadModalOpen(false);
+                setView('results'); setIsLoadModalOpen(false);
             };
 
-            const deleteSavedSchedule = async (id, e) => {
-                e.stopPropagation();
-                if(!confirm('이 저장 기록을 삭제하시겠습니까?')) return;
-                try {
-                    await db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('match_schedules').doc(id).delete();
-                } catch (e) { console.error(e); }
-            };
-
-            // Business Logic
             const handlePresetSelect = (preset) => {
                 setSelectedPresetId(preset.id);
-                const toggles = new Array(preset.courtCount).fill(false);
-                setPresetToggles(toggles);
+                setPresetToggles(new Array(preset.courtCount).fill(false));
                 setConfig(prev => ({ ...prev, courtCount: 0, fieldNames: [], fieldTypes: [] }));
             };
 
-            const handleToggleSubCourt = (index) => {
-                const newToggles = [...presetToggles];
-                newToggles[index] = !newToggles[index];
-                setPresetToggles(newToggles);
+            const handleToggleSubCourt = (idx) => {
+                const newToggles = [...presetToggles]; newToggles[idx] = !newToggles[idx]; setPresetToggles(newToggles);
+                const p = presets.find(pr => pr.id === selectedPresetId); if (!p) return;
+                const names = []; const types = [];
+                newToggles.forEach((on, i) => { if(on) { names.push(p.fieldNames[i]); types.push(p.fieldTypes[i]); } });
+                setConfig(prev => ({ ...prev, courtCount: names.length, fieldNames: names, fieldTypes: types }));
+            };
 
-                const preset = presets.find(p => p.id === selectedPresetId);
-                if (!preset) return;
-
-                const activeNames = []; const activeTypes = [];
-                newToggles.forEach((isActive, idx) => {
-                    if(isActive) { activeNames.push(preset.fieldNames[idx]); activeTypes.push(preset.fieldTypes[idx]); }
+            const openPresetModal = () => {
+                setPresetForm({
+                    name: '', courtCount: config.courtCount || 3,
+                    fieldNames: config.fieldNames.length > 0 ? [...config.fieldNames] : ["1구장", "2구장", "3구장"],
+                    fieldTypes: config.fieldTypes.length > 0 ? [...config.fieldTypes] : ["6vs6", "6vs6", "6vs6"]
                 });
-
-                setConfig(prev => ({ ...prev, courtCount: activeNames.length, fieldNames: activeNames, fieldTypes: activeTypes }));
+                setIsPresetModalOpen(true);
             };
 
             const generateMatchTable = () => {
                 if (!confirmedData) return;
                 const teams = confirmedData.teams.map((_, i) => String.fromCharCode(65 + i));
-                const teamSizes = {};
-                confirmedData.teams.forEach((t, i) => { teamSizes[String.fromCharCode(65 + i)] = t.members.length; });
-
+                const teamSizes = {}; confirmedData.teams.forEach((t, i) => { teamSizes[String.fromCharCode(65 + i)] = t.members.length; });
                 const { courtCount, matchDuration, breakDuration, startTime, endTime } = config;
                 let currentTime = new Date(`2024-01-01T${startTime}:00`);
                 const limitTime = new Date(`2024-01-01T${endTime}:00`);
-                
                 const teamStats = {}; teams.forEach(t => teamStats[t] = 0);
-                const matchupHistory = {}; 
-                teams.forEach(t1 => { matchupHistory[t1] = {}; teams.forEach(t2 => { if(t1!==t2) matchupHistory[t1][t2] = 0; }); });
-
-                let sessionList = [];
-                let matchIdx = 1;
+                const matchupHistory = {}; teams.forEach(t1 => { matchupHistory[t1] = {}; teams.forEach(t2 => { if(t1!==t2) matchupHistory[t1][t2] = 0; }); });
+                let sessionList = []; let matchIdx = 1;
 
                 while (currentTime < limitTime) {
-                    let availableTeams = [...teams].sort(() => Math.random() - 0.5);
-                    let sessionMatches = []; let usedInSession = new Set();
-                    let courtIndices = Array.from({length: courtCount}, (_, i) => i).sort(() => Math.random() - 0.5);
+                    let usedInSession = new Set();
+                    let sessionMatches = [];
+                    let sessionCourts = Array.from({length: courtCount}, (_, i) => ({ idx: i, type: config.fieldTypes[i] || '6vs6' }))
+                        .sort((a, b) => a.type === '5vs5' ? -1 : 1);
 
-                    for (let fIdx of courtIndices) {
-                        const isBigField = config.fieldTypes[fIdx] === "6vs6";
-                        if (!isBigField) continue;
-                        const largeTeam = availableTeams.find(t => !usedInSession.has(t) && teamSizes[t] >= 7);
-                        if (largeTeam) {
-                            const possibleOpponents = availableTeams.filter(t => !usedInSession.has(t) && t !== largeTeam);
-                            if (possibleOpponents.length > 0) {
-                                possibleOpponents.sort((a, b) => matchupHistory[largeTeam][a] - matchupHistory[largeTeam][b]);
-                                const opponent = possibleOpponents[0];
-                                sessionMatches.push({ match: [largeTeam, opponent], fieldIdx: fIdx });
-                                usedInSession.add(largeTeam); usedInSession.add(opponent);
-                                matchupHistory[largeTeam][opponent]++; matchupHistory[opponent][largeTeam]++;
-                                teamStats[largeTeam]++; teamStats[opponent]++;
+                    for (let court of sessionCourts) {
+                        const isSmall = court.type === "5vs5";
+                        let candidates = teams.filter(t => !usedInSession.has(t));
+                        if (isSmall) candidates = candidates.filter(t => teamSizes[t] < 7);
+                        if (candidates.length < 2) continue;
+                        candidates.sort((a, b) => (teamSizes[b] >= 7 ? 1 : 0) - (teamSizes[a] >= 7 ? 1 : 0));
+                        let bestPair = null; let minScore = Infinity;
+                        for (let i = 0; i < candidates.length; i++) {
+                            for (let j = i + 1; j < candidates.length; j++) {
+                                const t1 = candidates[i]; const t2 = candidates[j];
+                                const score = (matchupHistory[t1][t2] * 1000) + (teamStats[t1] + teamStats[t2]) * 10 + Math.random();
+                                if (score < minScore) { minScore = score; bestPair = [t1, t2]; }
                             }
                         }
-                    }
-
-                    for (let fIdx of courtIndices) {
-                        if (sessionMatches.some(sm => sm.fieldIdx === fIdx)) continue;
-                        const isSmallField = config.fieldTypes[fIdx] === "5vs5";
-                        const remainingTeams = availableTeams.filter(t => !usedInSession.has(t));
-                        if (remainingTeams.length >= 2) {
-                            let t1Candidates = isSmallField ? remainingTeams.filter(t => teamSizes[t] < 7) : remainingTeams;
-                            if (t1Candidates.length < 2) continue;
-                            const t1 = t1Candidates[0];
-                            const t2Candidates = t1Candidates.filter(t => t !== t1);
-                            t2Candidates.sort((a, b) => matchupHistory[t1][a] - matchupHistory[t1][b]);
-                            const t2 = t2Candidates[0];
-                            sessionMatches.push({ match: [t1, t2], fieldIdx: fIdx });
+                        if (bestPair) {
+                            const [t1, t2] = bestPair;
+                            sessionMatches.push({ match: [t1, t2], fieldIdx: court.idx });
                             usedInSession.add(t1); usedInSession.add(t2);
                             matchupHistory[t1][t2]++; matchupHistory[t2][t1]++;
                             teamStats[t1]++; teamStats[t2]++;
                         }
                     }
-
                     if (sessionMatches.length > 0) {
-                        const startTimeLabel = currentTime.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
-                        const endTimeCalc = new Date(currentTime.getTime() + matchDuration * 60000);
-                        const endTimeLabel = endTimeCalc.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+                        const startL = currentTime.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+                        const endC = new Date(currentTime.getTime() + matchDuration * 60000);
+                        const endL = endC.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
                         sessionList.push({ 
-                            id: matchIdx++, time: `${startTimeLabel} - ${endTimeLabel}`, startTime: startTimeLabel, endTime: endTimeLabel,
-                            matches: sessionMatches.sort((a,b) => a.fieldIdx - b.fieldIdx), resting: teams.filter(t => !usedInSession.has(t)) 
+                            id: matchIdx++, time: `${startL} - ${endL}`, startTime: startL, endTime: endL,
+                            matches: sessionMatches.sort((a,b) => a.fieldIdx - b.fieldIdx), 
+                            resting: teams.filter(t => !usedInSession.has(t)) 
                         });
                         currentTime = new Date(currentTime.getTime() + (matchDuration + breakDuration) * 60000);
+                        if (new Date(currentTime.getTime() - breakDuration * 60000) >= limitTime) break;
                     } else break;
                 }
-
-                setSchedule({ list: sessionList, stats: teamStats });
-                setCompletedMatches(new Set());
-                setView('results');
+                setSchedule({ list: sessionList, stats: teamStats }); setCompletedMatches(new Set()); setView('results');
             };
 
             const toggleMatchCompletion = (id) => {
@@ -380,35 +315,6 @@
                     if (next.has(id)) next.delete(id); else next.add(id);
                     return next;
                 });
-            };
-
-            const handleCourtCountChange = (num) => {
-                const validNum = Math.max(1, isNaN(num) ? 1 : num);
-                setConfig(prev => {
-                    let newNames = [...prev.fieldNames];
-                    let newTypes = [...prev.fieldTypes];
-                    for(let i = prev.fieldNames.length; i < validNum; i++) {
-                        newNames.push(`${i+1}구장`);
-                        newTypes.push("6vs6");
-                    }
-                    return { ...prev, courtCount: validNum, fieldNames: newNames, fieldTypes: newTypes };
-                });
-            };
-
-            const toggleFieldType = (index) => {
-                const newTypes = [...config.fieldTypes];
-                newTypes[index] = newTypes[index] === "6vs6" ? "5vs5" : "6vs6";
-                setConfig(prev => ({ ...prev, fieldTypes: newTypes }));
-            };
-
-            const openPresetModal = () => {
-                setPresetForm({
-                    name: '',
-                    courtCount: config.courtCount > 0 ? config.courtCount : 3,
-                    fieldNames: config.courtCount > 0 ? [...config.fieldNames] : ["1구장", "2구장", "3구장"],
-                    fieldTypes: config.courtCount > 0 ? [...config.fieldTypes] : ["6vs6", "6vs6", "6vs6"]
-                });
-                setIsPresetModalOpen(true);
             };
 
             const statsData = useMemo(() => {
@@ -422,138 +328,88 @@
                 });
                 schedule.list.forEach(session => {
                     session.matches.forEach(m => {
-                        const [t1, t2] = m.match; const fIdx = m.fieldIdx;
-                        matchupCounts[t1][t2]++; matchupCounts[t2][t1]++;
-                        fieldUsage[t1][fIdx]++; fieldUsage[t2][fIdx]++;
-                        totalMatches[t1]++; totalMatches[t2]++;
+                        const [t1, t2] = m.match; matchupCounts[t1][t2]++; matchupCounts[t2][t1]++;
+                        fieldUsage[t1][m.fieldIdx]++; fieldUsage[t2][m.fieldIdx]++; totalMatches[t1]++; totalMatches[t2]++;
                     });
                 });
                 return { matchupCounts, fieldUsage, totalMatches, teams };
             }, [schedule, confirmedData, config.courtCount]);
 
-            if (loading) return (
-                <div className="h-screen flex flex-col items-center justify-center text-slate-400">
-                    <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-4 shadow-lg"></div>
-                    <p className="font-black text-xs sm:text-sm tracking-widest uppercase italic">Syncing Data...</p>
-                </div>
-            );
+            if (loading) return (<div className="h-screen flex flex-col items-center justify-center text-slate-400"><div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div></div>);
 
             return (
                 <div className="h-screen flex flex-col overflow-hidden bg-slate-50 text-left">
-                    <header className="bg-white border-b px-4 py-3 sm:py-4 shadow-sm z-50 shrink-0 no-print flex flex-col sm:flex-row justify-between items-center gap-3">
-                        <div className="flex items-center gap-3 w-full sm:w-auto">
-                            <div className="w-9 h-9 sm:w-11 sm:h-11 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shrink-0">
-                                <Icon.Court size={20} />
-                            </div>
-                            <div className="leading-none text-left">
-                                <h1 className="text-lg sm:text-xl font-black text-indigo-600 tracking-tighter uppercase leading-none">Match Master</h1>
-                                <p className="text-[9px] sm:text-[10px] font-bold text-slate-400 tracking-tight mt-0.5">{confirmedData?.meetingDate} | {confirmedData?.teams.length || 0}개 팀 연동</p>
-                            </div>
+                    <header className="bg-white border-b px-4 py-2 sm:py-3 shadow-sm z-50 shrink-0 no-print flex flex-col sm:flex-row justify-between items-center gap-2">
+                        <div className="flex items-center gap-2 w-full sm:w-auto">
+                            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-md"><Icon.Court size={16} /></div>
+                            <div className="leading-none text-left"><h1 className="text-base sm:text-lg font-black text-indigo-600 uppercase">Match Master</h1></div>
                         </div>
-                        
                         <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
                             {schedule.list.length > 0 && (
-                                <div className="flex items-center gap-2">
-                                    <div className="flex bg-slate-100 p-1 rounded-2xl shadow-inner shrink-0">
-                                        <button onClick={() => setView('results')} className={`px-4 sm:px-6 py-2 rounded-xl font-black text-[11px] sm:text-xs flex items-center gap-2 transition-all ${view === 'results' ? 'bg-white text-indigo-600 shadow-sm scale-105' : 'text-slate-400 hover:text-slate-600'}`}>
-                                            <Icon.List size={14} /> <span className="hidden xs:inline">매치표</span>
-                                        </button>
-                                        <button onClick={() => setView('stats')} className={`px-4 sm:px-6 py-2 rounded-xl font-black text-[11px] sm:text-xs flex items-center gap-2 transition-all ${view === 'stats' ? 'bg-white text-indigo-600 shadow-sm scale-105' : 'text-slate-400 hover:text-slate-600'}`}>
-                                            <Icon.Chart size={14} /> <span className="hidden xs:inline">통계</span>
-                                        </button>
+                                <div className="flex items-center gap-1.5">
+                                    <div className="flex bg-slate-100 p-1 rounded-xl shadow-inner shrink-0">
+                                        <button onClick={() => setView('results')} className={`px-2.5 py-1.5 rounded-lg font-black text-[10px] flex items-center gap-1.5 ${view === 'results' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}><Icon.List size={12} /> 매치표</button>
+                                        <button onClick={() => setView('stats')} className={`px-2.5 py-1.5 rounded-lg font-black text-[10px] flex items-center gap-1.5 ${view === 'stats' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}><Icon.Chart size={12} /> 통계</button>
                                     </div>
-                                    <button onClick={saveMatchSchedule} disabled={isSaving} className="p-2.5 sm:p-3 bg-green-50 text-green-600 border border-green-200 rounded-2xl hover:bg-green-100 transition-all active:scale-95 shadow-sm flex items-center gap-2">
-                                        <Icon.Save size={18}/>
-                                        <span className="hidden md:inline font-black text-[11px]">저장</span>
-                                    </button>
+                                    <button onClick={saveMatchSchedule} disabled={isSaving} className="p-2 bg-green-50 text-green-600 border border-green-200 rounded-xl active:scale-95 transition-all"><Icon.Save size={16}/></button>
                                 </div>
                             )}
-                            <button onClick={() => setView('setup')} className={`p-2.5 sm:p-3 border rounded-2xl transition-all active:scale-95 shadow-sm ${view === 'setup' ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-slate-50 border-slate-200 text-slate-400 hover:text-indigo-600'}`}>
-                                <Icon.Settings size={20} />
-                            </button>
+                            <button onClick={() => setView('setup')} className={`p-2 border rounded-xl transition-all active:scale-95 ${view === 'setup' ? 'bg-indigo-600 border-indigo-600 text-white shadow-md' : 'bg-slate-50 border-slate-200 text-slate-400'}`}><Icon.Settings size={18} /></button>
                         </div>
                     </header>
 
-                    <main className="flex-1 p-3 sm:p-6 overflow-y-auto no-scrollbar">
+                    <main className="flex-1 p-2 sm:p-3 overflow-y-auto no-scrollbar">
                         {view === 'setup' ? (
-                            <div className="max-w-md mx-auto py-2 sm:py-4 animate-fade-in text-left">
+                            <div className="max-w-md mx-auto py-2 animate-fade-in text-left">
                                 <div className="mb-4 flex gap-2">
-                                    <button onClick={() => setIsLoadModalOpen(true)} className="flex-1 py-4 bg-white border border-slate-200 rounded-[20px] shadow-sm flex items-center justify-center gap-2 hover:bg-slate-50 transition-all active:scale-95">
-                                        <div className="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center"><Icon.Download size={16}/></div>
-                                        <div className="text-left">
-                                            <p className="text-[10px] font-black text-slate-400 leading-none">History</p>
-                                            <p className="text-[13px] font-black text-slate-800">저장된 매치 불러오기</p>
-                                        </div>
+                                    <button onClick={() => setIsLoadModalOpen(true)} className="flex-1 py-3 bg-white border border-slate-200 rounded-2xl shadow-sm flex items-center justify-center gap-2 active:scale-95 transition-all">
+                                        <div className="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center"><Icon.Download size={14}/></div>
+                                        <p className="text-[12px] font-black text-slate-800">기록 불러오기</p>
                                     </button>
                                 </div>
-
-                                <div className="bg-white rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 shadow-xl border border-slate-100">
-                                    <h2 className="text-xl sm:text-2xl font-black text-slate-800 mb-6 sm:mb-8 uppercase tracking-tight text-center leading-none">Settings</h2>
-                                    
-                                    <div className="space-y-6 sm:space-y-8">
-                                        {/* 1. Time Settings */}
-                                        <div className="bg-slate-50 p-4 rounded-2xl sm:rounded-3xl border border-slate-100 shadow-inner flex flex-col gap-4">
-                                            <div className="flex items-center gap-1.5 mb-1">
-                                                <div className="text-indigo-500"><Icon.Clock size={16}/></div>
-                                                <h3 className="text-[12px] sm:text-[13px] font-black text-slate-800 uppercase tracking-tight">1. 운영 및 경기 시간 설정</h3>
+                                <div className="bg-white rounded-[24px] p-5 sm:p-6 shadow-xl border border-slate-100">
+                                    <h2 className="text-xl font-black text-slate-800 mb-6 text-center">Settings</h2>
+                                    <div className="space-y-5">
+                                        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex flex-col gap-4">
+                                            <h3 className="text-[11px] font-black text-slate-800 uppercase">1. 시간 설정</h3>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <div className="space-y-1 text-left"><span className="text-[9px] font-black text-indigo-500 ml-1">시작</span><div className="flex gap-1">
+                                                    <select className="flex-1 bg-white p-2 rounded-lg font-black text-[11px]" value={splitTime(config.startTime).h} onChange={e => setConfig({...config, startTime: `${e.target.value}:${splitTime(config.startTime).m}`})}>{hoursList.map(h => <option key={h} value={h}>{h}시</option>)}</select>
+                                                    <select className="flex-1 bg-white p-2 rounded-lg font-black text-[11px]" value={splitTime(config.startTime).m} onChange={e => setConfig({...config, startTime: `${splitTime(config.startTime).h}:${e.target.value}`})}>{minutesList.map(m => <option key={m} value={m}>{m}분</option>)}</select>
+                                                </div></div>
+                                                <div className="space-y-1 text-left"><span className="text-[9px] font-black text-rose-500 ml-1">종료</span><div className="flex gap-1">
+                                                    <select className="flex-1 bg-white p-2 rounded-lg font-black text-[11px]" value={splitTime(config.endTime).h} onChange={e => setConfig({...config, endTime: `${e.target.value}:${splitTime(config.endTime).m}`})}>{hoursList.map(h => <option key={h} value={h}>{h}시</option>)}</select>
+                                                    <select className="flex-1 bg-white p-2 rounded-lg font-black text-[11px]" value={splitTime(config.endTime).m} onChange={e => setConfig({...config, endTime: `${splitTime(config.endTime).h}:${e.target.value}`})}>{minutesList.map(m => <option key={m} value={m}>{m}분</option>)}</select>
+                                                </div></div>
                                             </div>
                                             <div className="grid grid-cols-2 gap-3">
-                                                <div className="space-y-1.5 text-left">
-                                                    <span className="text-[9px] sm:text-[10px] font-black text-indigo-500 uppercase ml-1">시작 시간</span>
-                                                    <div className="flex gap-1">
-                                                        <select className="flex-1 bg-white p-2.5 sm:p-3 rounded-xl font-black text-xs sm:text-sm shadow-sm" value={splitTime(config.startTime).h} onChange={e => setConfig({...config, startTime: `${e.target.value}:${splitTime(config.startTime).m}`})}>{hoursList.map(h => <option key={h} value={h}>{h}시</option>)}</select>
-                                                        <select className="flex-1 bg-white p-2.5 sm:p-3 rounded-xl font-black text-xs sm:text-sm shadow-sm" value={splitTime(config.startTime).m} onChange={e => setConfig({...config, startTime: `${splitTime(config.startTime).h}:${e.target.value}`})}>{minutesList.map(m => <option key={m} value={m}>{m}분</option>)}</select>
-                                                    </div>
-                                                </div>
-                                                <div className="space-y-1.5 text-left">
-                                                    <span className="text-[9px] sm:text-[10px] font-black text-rose-500 uppercase ml-1">종료 시간</span>
-                                                    <div className="flex gap-1">
-                                                        <select className="flex-1 bg-white p-2.5 sm:p-3 rounded-xl font-black text-xs sm:text-sm shadow-sm" value={splitTime(config.endTime).h} onChange={e => setConfig({...config, endTime: `${e.target.value}:${splitTime(config.endTime).m}`})}>{hoursList.map(h => <option key={h} value={h}>{h}시</option>)}</select>
-                                                        <select className="flex-1 bg-white p-2.5 sm:p-3 rounded-xl font-black text-xs sm:text-sm shadow-sm" value={splitTime(config.endTime).m} onChange={e => setConfig({...config, endTime: `${splitTime(config.endTime).h}:${e.target.value}`})}>{minutesList.map(m => <option key={m} value={m}>{m}분</option>)}</select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="grid grid-cols-2 gap-3">
-                                                <div className="flex flex-col gap-1.5">
-                                                    <label className="text-[9px] sm:text-[10px] font-black text-slate-500 ml-1 uppercase">경기 시간 (분)</label>
-                                                    <input type="number" className="w-full bg-white border border-slate-200 p-2.5 sm:p-3 rounded-xl font-black text-sm sm:text-base shadow-sm text-center" value={config.matchDuration} onChange={e => setConfig({...config, matchDuration: parseInt(e.target.value)})}/>
-                                                </div>
-                                                <div className="flex flex-col gap-1.5">
-                                                    <label className="text-[9px] sm:text-[10px] font-black text-slate-500 ml-1 uppercase">휴식 시간 (분)</label>
-                                                    <input type="number" className="w-full bg-white border border-slate-200 p-2.5 sm:p-3 rounded-xl font-black text-sm sm:text-base shadow-sm text-center" value={config.breakDuration} onChange={e => setConfig({...config, breakDuration: parseInt(e.target.value)})}/>
-                                                </div>
+                                                <div className="flex flex-col gap-1"><label className="text-[9px] font-black text-slate-500 ml-1">경기 (분)</label><input type="number" className="w-full bg-white border border-slate-200 p-2 rounded-lg font-black text-center text-xs" value={config.matchDuration} onChange={e => setConfig({...config, matchDuration: parseInt(e.target.value)})}/></div>
+                                                <div className="flex flex-col gap-1"><label className="text-[9px] font-black text-slate-500 ml-1">휴식 (분)</label><input type="number" className="w-full bg-white border border-slate-200 p-2 rounded-lg font-black text-center text-xs" value={config.breakDuration} onChange={e => setConfig({...config, breakDuration: parseInt(e.target.value)})}/></div>
                                             </div>
                                         </div>
 
-                                        {/* 2. Main Preset Selection */}
-                                        <div className="flex flex-col gap-3">
-                                            <div className="flex justify-between items-center px-1">
-                                                <h3 className="text-[12px] sm:text-[13px] font-black text-slate-800 flex items-center gap-1.5"><div className="text-indigo-500"><Icon.Bookmark size={14}/></div> 2. 메인 구장 선택</h3>
-                                                <button onClick={openPresetModal} className="px-2.5 py-1.5 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-lg hover:bg-indigo-100 transition-all active:scale-95 border border-indigo-100">+ 새 구장</button>
-                                            </div>
-                                            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 pt-1 -mx-1 px-1">
-                                                <button onClick={() => { setSelectedPresetId('manual'); }} className={`shrink-0 px-4 py-3 rounded-2xl font-black text-xs sm:text-[13px] transition-all border-2 shadow-sm ${selectedPresetId === 'manual' ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'}`}>직접 입력</button>
+                                        <div className="flex flex-col gap-2">
+                                            <div className="flex justify-between items-center px-1"><h3 className="text-[11px] font-black text-slate-800 uppercase">2. 메인 구장</h3><button onClick={openPresetModal} className="px-2 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-lg">+ 추가</button></div>
+                                            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                                                <button onClick={() => setSelectedPresetId('manual')} className={`shrink-0 px-4 py-2 rounded-xl font-black text-[11px] border-2 transition-all ${selectedPresetId === 'manual' ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-500 border-slate-200'}`}>직접 입력</button>
                                                 {presets.map(p => (
-                                                    <div key={p.id} className={`flex shrink-0 items-center bg-white rounded-2xl border-2 shadow-sm overflow-hidden transition-all ${selectedPresetId === p.id ? 'border-indigo-600 ring-2 ring-indigo-600/20' : 'border-slate-200'}`}>
-                                                        <button onClick={() => handlePresetSelect(p)} className={`px-4 py-3 font-black text-xs sm:text-[13px] transition-colors ${selectedPresetId === p.id ? 'bg-indigo-600 text-white' : 'text-slate-700 hover:bg-slate-50'}`}>{p.name}</button>
-                                                        <button onClick={() => setPresetToDelete(p.id)} className={`px-3 py-3 transition-colors ${selectedPresetId === p.id ? 'bg-indigo-700 text-indigo-200 hover:text-white' : 'bg-white text-rose-400 border-l border-slate-100'}`}><Icon.Trash size={12} /></button>
+                                                    <div key={p.id} className={`flex shrink-0 items-center bg-white rounded-xl border-2 overflow-hidden ${selectedPresetId === p.id ? 'border-indigo-600' : 'border-slate-200'}`}>
+                                                        <button onClick={() => handlePresetSelect(p)} className={`px-4 py-2 font-black text-[11px] ${selectedPresetId === p.id ? 'bg-indigo-600 text-white' : 'text-slate-700'}`}>{p.name}</button>
+                                                        <button onClick={(e) => { e.stopPropagation(); setPresetToDelete(p.id); }} className={`px-2 py-2 text-rose-400 border-l border-slate-100 active:bg-rose-50`}><Icon.Trash size={12} /></button>
                                                     </div>
                                                 ))}
                                             </div>
                                         </div>
 
-                                        {/* 3. Sub-court Toggle */}
                                         {selectedPresetId !== 'manual' && (
-                                            <div className="flex flex-col gap-3 animate-fade-in bg-indigo-50 p-4 rounded-2xl sm:rounded-3xl border border-indigo-100 shadow-inner">
-                                                <h3 className="text-[12px] sm:text-[13px] font-black text-indigo-900 flex items-center gap-1.5"><Icon.Court size={16}/> 3. 운영할 세부 구장 선택</h3>
-                                                <div className="flex flex-wrap gap-2 mt-1">
+                                            <div className="flex flex-col gap-3 animate-fade-in bg-indigo-50 p-4 rounded-2xl border border-indigo-100 shadow-inner">
+                                                <h3 className="text-[11px] font-black text-indigo-900 uppercase">3. 세부 구장 선택</h3>
+                                                <div className="flex flex-wrap gap-1.5">
                                                     {presets.find(p => p.id === selectedPresetId)?.fieldNames.map((name, i) => {
-                                                        const isActive = presetToggles[i];
-                                                        const type = presets.find(p => p.id === selectedPresetId).fieldTypes[i];
+                                                        const on = presetToggles[i];
                                                         return (
-                                                            <button key={i} onClick={() => handleToggleSubCourt(i)} className={`px-3.5 py-2.5 rounded-xl font-black text-[11px] sm:text-[12px] transition-colors duration-200 border-2 flex items-center gap-1.5 ${isActive ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-white text-slate-400 border-slate-200'}`}>
-                                                                <span>{name}</span>
-                                                                <span className={`text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded-md transition-colors ${isActive ? 'bg-indigo-500 text-indigo-50' : 'bg-slate-100 text-slate-400'}`}>{type}</span>
+                                                            <button key={i} onClick={() => handleToggleSubCourt(i)} className={`px-2.5 py-1.5 rounded-lg font-black text-[10px] border transition-colors ${on ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-400 border-slate-200'}`}>
+                                                                {name}
                                                             </button>
                                                         )
                                                     })}
@@ -561,125 +417,104 @@
                                             </div>
                                         )}
 
-                                        {/* 4. Final Preview */}
-                                        <div className="flex flex-col gap-3">
-                                            <div className="flex justify-between items-center px-1">
-                                                <h3 className="text-[12px] sm:text-[13px] font-black text-slate-800 flex items-center gap-1.5"><div className="text-indigo-500"><Icon.List size={16}/></div> 4. 최종 운영 구장 <span className="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-lg text-[10px] sm:text-[11px] ml-1">{config.courtCount}개</span></h3>
-                                            </div>
-                                            {selectedPresetId === 'manual' ? (
-                                                <div className="bg-white border border-slate-200 p-4 rounded-2xl sm:rounded-3xl shadow-sm flex flex-col gap-4 animate-fade-in">
-                                                    <div className="flex items-center justify-between bg-slate-50 p-2 rounded-xl border border-slate-100 shadow-inner">
-                                                        <button onClick={() => handleCourtCountChange(config.courtCount - 1)} className="w-10 h-10 flex items-center justify-center bg-white rounded-xl font-black text-xl text-slate-500 shadow-sm"><Icon.Minus size={14} /></button>
-                                                        <div className="flex items-center gap-1 text-slate-800">
-                                                            <input type="number" min="1" className="w-12 text-center font-black text-2xl bg-transparent" value={config.courtCount} onChange={e => handleCourtCountChange(parseInt(e.target.value))} />
-                                                            <span className="font-bold text-xs text-slate-400">개</span>
+                                        <div className="flex flex-col gap-2">
+                                            <h3 className="text-[11px] font-black text-slate-800 uppercase px-1">4. 최종 운영 구장 ({config.courtCount}개)</h3>
+                                            <div className="grid grid-cols-2 gap-2 animate-fade-in bg-slate-100 p-2 rounded-2xl shadow-inner">
+                                                {config.courtCount === 0 ? ( <div className="col-span-2 text-center py-4 text-slate-400 font-bold text-[10px]">구장을 선택해주세요.</div> ) : (
+                                                    config.fieldNames.map((name, i) => (
+                                                        <div key={i} className="flex flex-col items-center justify-center py-2 px-1 bg-white border border-slate-200 rounded-xl gap-1 shadow-sm">
+                                                            <span className="font-black text-[11px] text-slate-800 text-center leading-tight truncate w-full px-1">{name}</span>
+                                                            <span className={`text-[8px] font-black px-1 rounded-sm border ${config.fieldTypes[i] === '5vs5' ? 'bg-rose-50 text-rose-500 border-rose-100' : 'bg-indigo-50 text-indigo-500 border-indigo-100'}`}>{config.fieldTypes[i]}</span>
                                                         </div>
-                                                        <button onClick={() => handleCourtCountChange(config.courtCount + 1)} className="w-10 h-10 flex items-center justify-center bg-white rounded-xl font-black text-xl text-slate-500 shadow-sm"><Icon.Plus size={14} /></button>
-                                                    </div>
-                                                    <div className="grid grid-cols-1 gap-2 max-h-[200px] overflow-y-auto pr-1 no-scrollbar">
-                                                        {Array.from({ length: config.courtCount }).map((_, i) => (
-                                                            <div key={i} className="flex gap-2 items-center bg-slate-50 p-2 rounded-xl border border-slate-100">
-                                                                <input type="text" className="flex-1 bg-white p-2.5 rounded-lg font-black text-xs border border-transparent shadow-sm" value={config.fieldNames[i] || ''} placeholder={`${i+1}번 구장`} onChange={(e) => {
-                                                                    const newNames = [...config.fieldNames]; newNames[i] = e.target.value; setConfig({...config, fieldNames: newNames});
-                                                                }}/>
-                                                                <button onClick={() => toggleFieldType(i)} className={`px-3 py-2.5 rounded-lg font-black text-[9px] sm:text-[10px] shrink-0 transition-all border-2 ${config.fieldTypes[i] === "6vs6" ? "bg-indigo-50 border-indigo-200 text-indigo-600" : "bg-rose-50 border-rose-200 text-rose-600"}`}>{config.fieldTypes[i] || '6vs6'}</button>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <div className="grid grid-cols-2 gap-2 animate-fade-in bg-slate-50 p-3 rounded-2xl sm:rounded-3xl border border-slate-100 shadow-inner">
-                                                    {config.courtCount === 0 ? (
-                                                        <div className="col-span-2 text-center py-6 text-slate-400 font-bold text-[11px] sm:text-xs">선택된 세부 구장이 없습니다.<br/>위에서 구장을 선택해주세요.</div>
-                                                    ) : (
-                                                        config.fieldNames.map((name, i) => (
-                                                            <div key={i} className="flex flex-col items-center justify-center py-3 px-2 bg-white border border-slate-200 rounded-xl sm:rounded-2xl shadow-sm gap-1.5">
-                                                                <span className="font-black text-[11px] sm:text-[13px] text-slate-800 text-center leading-tight break-keep">{name}</span>
-                                                                <span className={`text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded-md border ${config.fieldTypes[i] === '5vs5' ? 'bg-rose-50 text-rose-500 border-rose-100' : 'bg-indigo-50 text-indigo-500 border-indigo-100'}`}>{config.fieldTypes[i]}</span>
-                                                            </div>
-                                                        ))
-                                                    )}
-                                                </div>
-                                            )}
+                                                    ))
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
-                                    <button onClick={generateMatchTable} disabled={config.courtCount === 0} className="w-full mt-8 sm:mt-10 py-4 sm:py-5 bg-slate-900 text-white rounded-[20px] sm:rounded-3xl font-black text-base sm:text-lg shadow-xl shadow-slate-200 active:scale-95 transition-all hover:bg-black uppercase tracking-widest text-center border-none disabled:opacity-50">매치 테이블 생성</button>
+                                    <button onClick={generateMatchTable} disabled={config.courtCount === 0} className="w-full mt-6 py-4 bg-slate-900 text-white rounded-2xl font-black text-base active:scale-95 transition-all disabled:opacity-50">매치 테이블 생성</button>
                                 </div>
                             </div>
                         ) : view === 'results' ? (
-                            <div className="w-full max-w-[1600px] mx-auto flex flex-col gap-3 sm:gap-4 animate-fade-in pb-20">
-                                <div className="bg-white p-2.5 sm:p-3 rounded-[16px] sm:rounded-[24px] border border-slate-200 shadow-sm no-print text-center">
-                                    <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
-                                        <button onClick={() => setSelectedMyTeam(null)} className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl font-black text-[10px] sm:text-xs transition-all tracking-tighter ${selectedMyTeam === null ? 'bg-slate-900 text-white shadow-md' : 'bg-slate-100 text-slate-400'}`}>전체보기</button>
-                                        <div className="hidden sm:block w-px h-5 sm:h-6 bg-slate-200 mx-0.5"></div>
+                            <div className="w-full max-w-[1600px] mx-auto flex flex-col gap-1.5 animate-fade-in pb-16">
+                                <div className="bg-white p-1.5 rounded-xl border border-slate-200 shadow-sm no-print sticky top-0 z-40">
+                                    <div className="flex flex-wrap items-center justify-center gap-1">
+                                        <button onClick={() => setSelectedMyTeam(null)} className={`px-2.5 py-1.5 rounded-lg font-black text-[10px] transition-all ${selectedMyTeam === null ? 'bg-slate-900 text-white shadow-md' : 'bg-slate-100 text-slate-400'}`}>전체보기</button>
                                         {confirmedData?.teams.map((t, i) => {
-                                            const teamName = String.fromCharCode(65 + i);
-                                            const isActive = selectedMyTeam === teamName;
-                                            const isLight = teamName === 'C' || teamName === 'D';
+                                            const name = String.fromCharCode(65 + i);
+                                            const on = selectedMyTeam === name;
                                             return (
-                                                <button key={teamName} onClick={() => setSelectedMyTeam(teamName)} className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl font-black text-[10px] sm:text-xs flex items-center gap-1 transition-all tracking-tighter shadow-sm ${isActive ? 'ring-2 ring-slate-900/10 scale-[1.05] z-10' : 'opacity-80 grayscale-[30%]'}`} style={{ backgroundColor: getTeamBaseColor(i), color: isLight ? '#1e293b' : 'white' }}>
-                                                    {isActive && <div className="w-3 h-3 flex items-center justify-center"><Icon.Star size={12}/></div>}
-                                                    <span>{teamName}팀 ({t.members.length}명)</span>
+                                                <button key={name} onClick={() => setSelectedMyTeam(name)} className={`px-2 py-1.5 rounded-lg font-black text-[10px] flex items-center gap-1 transition-all ${on ? 'ring-2 ring-slate-900/10 scale-105 z-10' : 'opacity-80 grayscale-[30%]'}`} style={{ backgroundColor: getTeamBaseColor(i), color: (name === 'C' || name === 'D') ? '#1e293b' : 'white' }}>
+                                                    {on && <Icon.Star size={10}/>}<span>{name}({t.members.length})</span>
                                                 </button>
                                             );
                                         })}
                                     </div>
                                 </div>
 
-                                <div className="results-list">
+                                <div className="results-list px-0.5">
                                     {schedule?.list?.map((session) => {
-                                        const isDone = completedMatches.has(session.id);
-                                        let displayMatches = session.matches;
-                                        let isResting = session.resting.includes(selectedMyTeam);
-                                        if (selectedMyTeam) displayMatches = session.matches.filter(m => m.match.includes(selectedMyTeam));
-                                        if (selectedMyTeam && displayMatches.length === 0 && !isResting) return null;
+                                        const done = completedMatches.has(session.id);
+                                        let matches = session.matches;
+                                        let resting = session.resting.includes(selectedMyTeam);
+                                        if (selectedMyTeam) matches = session.matches.filter(m => m.match.includes(selectedMyTeam));
+                                        if (selectedMyTeam && matches.length === 0 && !resting) return null;
 
                                         return (
-                                            <div key={session.id} onClick={() => toggleMatchCompletion(session.id)} className={`match-row gap-4 sm:gap-8 ${isDone ? 'match-completed' : 'hover:border-indigo-200'}`}>
-                                                <div className="flex flex-col items-center justify-center pr-4 sm:pr-8 border-r-2 border-slate-100 min-w-[70px] sm:min-w-[100px] shrink-0 text-center">
-                                                    {isDone ? (
-                                                        <div className="flex items-center gap-1 text-red-600 bg-red-50 px-2 py-0.5 rounded-full border border-red-100 mb-1"><Icon.Check size={10}/> <span className="text-[9px] font-black">종료</span></div>
-                                                    ) : (
-                                                        <span className="text-xs sm:text-sm font-black text-slate-800 leading-none mb-1">매치 {session.id}</span>
-                                                    )}
-                                                    <div className={`flex flex-col items-center gap-0.5 ${isDone ? 'strikethrough opacity-60' : ''}`}>
-                                                        <span className="text-[12px] sm:text-[15px] font-black text-slate-800 tracking-tighter leading-none">{session.startTime}</span>
-                                                        <span className="text-[12px] sm:text-[15px] font-black text-slate-800 tracking-tighter leading-none">~ {session.endTime}</span>
+                                            <div key={session.id} onClick={() => toggleMatchCompletion(session.id)} className={`match-row gap-1.5 ${done ? 'match-completed' : 'hover:border-indigo-300'}`}>
+                                                <div className="flex flex-col items-center justify-center pr-1.5 border-r border-slate-100 min-w-[65px] shrink-0 text-center">
+                                                    {/* 경기 문구 폰트 키움 */}
+                                                    <span className="text-[12px] sm:text-[14px] font-black text-black leading-none mb-1">{session.id}경기</span>
+                                                    <div className={`flex flex-col items-center ${done ? 'strikethrough opacity-60' : ''}`}>
+                                                        {/* 시간 파란색 변경 및 크기 통일 */}
+                                                        <span className="text-[11px] sm:text-[12px] font-black text-blue-600 leading-none">{session.startTime}</span>
+                                                        <span className="text-[11px] sm:text-[12px] font-black text-blue-600 leading-none mt-1">{session.endTime}</span>
                                                     </div>
                                                 </div>
 
-                                                <div className={`flex flex-nowrap items-center gap-3 sm:gap-4 shrink-0 ${isDone ? 'strikethrough' : ''}`}>
-                                                    {isResting ? (
-                                                        <div className="flex justify-center items-center py-1 sm:py-2">
-                                                            <div className="bg-amber-100 px-5 sm:px-6 py-2 rounded-2xl border border-amber-200 flex items-center gap-2">
-                                                                <span className="text-xs sm:text-sm font-black text-amber-600 uppercase italic">이번판 {selectedMyTeam}팀 휴식</span>
-                                                                <Icon.Clock size={14}/>
-                                                            </div>
-                                                        </div>
+                                                <div className="flex-1 overflow-hidden">
+                                                    {resting ? (
+                                                        <div className="flex items-center justify-center h-full"><div className="bg-amber-50 text-amber-600 px-3 py-1 rounded-lg font-black text-[10px] italic">휴식 중</div></div>
                                                     ) : (
-                                                        displayMatches.map((m, idx) => (
-                                                            <div key={idx} className={`flex items-center p-1.5 sm:p-2.5 rounded-[16px] sm:rounded-[24px] border shadow-sm shrink-0 bg-white border-slate-200`}>
-                                                                <div className="flex flex-col items-center justify-center px-2 sm:px-5 border-r border-slate-200 shrink-0">
-                                                                    <span className={`text-[11px] sm:text-[14px] font-black leading-none truncate max-w-[60px] sm:max-w-[100px] text-center ${isDone ? 'text-slate-400' : 'text-slate-800'}`}>{config.fieldNames[m.fieldIdx] || `${m.fieldIdx+1}구장`}</span>
-                                                                    <span className={`text-[8px] sm:text-[9px] font-black mt-1 px-1.5 py-0.5 rounded-md border ${config.fieldTypes[m.fieldIdx] === '5vs5' ? 'bg-rose-50 text-rose-500 border-rose-100' : 'bg-indigo-50 text-indigo-500 border-indigo-100'}`}>{config.fieldTypes[m.fieldIdx]}</span>
-                                                                </div>
-                                                                <div className="flex items-center gap-2 sm:gap-4 pl-2 sm:pl-5 pr-1">
-                                                                    <span className={`w-9 h-9 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl text-lg sm:text-2xl font-black shadow-md ${getTeamStyles(m.match[0].charCodeAt(0)-65)} ${isDone ? 'grayscale opacity-40' : ''} ${selectedMyTeam && m.match[0] !== selectedMyTeam ? 'opacity-40 scale-90' : ''}`}>{m.match[0]}</span>
-                                                                    <span className={`text-[10px] sm:text-xs font-black italic text-slate-300`}>VS</span>
-                                                                    <span className={`w-9 h-9 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl text-lg sm:text-2xl font-black shadow-md ${getTeamStyles(m.match[1].charCodeAt(0)-65)} ${isDone ? 'grayscale opacity-40' : ''} ${selectedMyTeam && m.match[1] !== selectedMyTeam ? 'opacity-40 scale-90' : ''}`}>{m.match[1]}</span>
-                                                                </div>
-                                                            </div>
-                                                        ))
+                                                        <div className="flex flex-row flex-nowrap gap-1 w-full h-full">
+                                                            {matches.map((m, idx) => {
+                                                                const courtCount = matches.length;
+                                                                const iconSize = courtCount > 4 ? 'w-6 h-6' : courtCount > 2 ? 'w-7 h-7' : 'w-8 h-8';
+                                                                // 구장 이름 사이즈 키움
+                                                                const labelSize = courtCount > 4 ? 'text-[12px]' : 'text-[14px]';
+                                                                
+                                                                const isSmall = config.fieldTypes[m.fieldIdx] === '5vs5';
+                                                                const typeColor = isSmall ? 'text-rose-500' : 'text-indigo-500';
+                                                                const typeBg = isSmall ? 'bg-rose-50' : 'bg-indigo-50';
+
+                                                                return (
+                                                                    <div key={idx} className="flex-1 min-w-0 flex flex-col bg-white border-x border-slate-100 first:border-l-0 last:border-r-0 items-center justify-center py-0.5 relative">
+                                                                        {/* 상단 구장 이름 + 규격 표시 강화 (색상 뱃지화) */}
+                                                                        <div className="flex items-center justify-center gap-1 mb-1 w-full overflow-hidden px-1">
+                                                                            <span className={`${labelSize} font-black text-slate-900 truncate leading-none`}>
+                                                                                {config.fieldNames[m.fieldIdx] || `${m.fieldIdx+1}구장`}
+                                                                            </span>
+                                                                            <span className={`text-[8px] font-black px-1 rounded-full ${typeBg} ${typeColor} tracking-tighter shrink-0`}>
+                                                                                {config.fieldTypes[m.fieldIdx]}
+                                                                            </span>
+                                                                        </div>
+                                                                        {/* 대진 팀 */}
+                                                                        <div className="flex items-center justify-center gap-0.5 w-full">
+                                                                            <div className={`${iconSize} flex items-center justify-center rounded-md text-[11px] font-black shadow-sm ${getTeamStyles(m.match[0].charCodeAt(0)-65)} ${done ? 'grayscale opacity-30' : ''} ${selectedMyTeam && m.match[0] !== selectedMyTeam ? 'opacity-40' : ''}`}>{m.match[0]}</div>
+                                                                            <span className="text-[7px] font-black text-slate-300 italic px-0.5">vs</span>
+                                                                            <div className={`${iconSize} flex items-center justify-center rounded-md text-[11px] font-black shadow-sm ${getTeamStyles(m.match[1].charCodeAt(0)-65)} ${done ? 'grayscale opacity-30' : ''} ${selectedMyTeam && m.match[1] !== selectedMyTeam ? 'opacity-40' : ''}`}>{m.match[1]}</div>
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
                                                     )}
                                                 </div>
 
                                                 {!selectedMyTeam && session.resting.length > 0 && (
-                                                    <div className="flex items-center gap-3 pl-4 sm:pl-8 border-l-2 border-slate-100 shrink-0 h-full">
-                                                        <span className={`text-[9px] sm:text-[10px] font-black uppercase px-2 py-1.5 rounded-xl ${isDone ? 'bg-slate-200 text-slate-400' : 'bg-amber-100 text-amber-600'}`}>휴식</span>
-                                                        <div className="flex gap-1.5 sm:gap-2">
-                                                            {session.resting.map(t => (
-                                                                <span key={t} className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg sm:rounded-xl font-black text-sm sm:text-lg border shadow-sm ${getTeamStyles(t.charCodeAt(0)-65)} ${isDone ? 'grayscale opacity-30' : ''}`}>{t}</span>
-                                                            ))}
+                                                    <div className="flex flex-col items-center justify-center pl-1 border-l border-slate-100 shrink-0 h-full gap-0.5">
+                                                        <span className="text-[6px] font-black uppercase text-amber-500">Rest</span>
+                                                        <div className="flex flex-wrap max-w-[35px] justify-center gap-0.5">
+                                                            {session.resting.map(t => (<span key={t} className={`w-3.5 h-3.5 flex items-center justify-center rounded-sm font-black text-[8px] ${getTeamStyles(t.charCodeAt(0)-65)} ${done ? 'grayscale opacity-30' : ''}`}>{t}</span>))}
                                                         </div>
                                                     </div>
                                                 )}
@@ -689,38 +524,35 @@
                                 </div>
                             </div>
                         ) : (
-                            <div className="w-full max-w-[1200px] mx-auto flex flex-col gap-6 sm:gap-8 animate-fade-in pb-20 text-left">
-                                <div className="bg-white rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 shadow-sm border border-slate-200 text-center">
-                                    <h3 className="text-base sm:text-lg font-black text-slate-800 mb-6 flex items-center gap-2 leading-none uppercase"><Icon.Chart size={18}/> 팀별 총 경기 수</h3>
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4 text-center">
+                            <div className="w-full max-w-[1200px] mx-auto flex flex-col gap-4 animate-fade-in pb-16">
+                                <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 text-center">
+                                    <h3 className="text-sm font-black text-slate-800 mb-3 flex items-center justify-center gap-2 uppercase tracking-widest"><Icon.Chart size={16}/> 팀별 총 경기 수</h3>
+                                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                                         {statsData?.teams.map((t) => (
-                                            <div key={t} className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-slate-50 border border-slate-100 shadow-sm transition-transform hover:scale-105 active:scale-95">
-                                                <span className={`w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl font-black text-xl sm:text-2xl mx-auto mb-2 shadow-sm ${getTeamStyles(t.charCodeAt(0)-65)}`}>{t}</span>
-                                                <div className="text-2xl sm:text-3xl font-black text-slate-800">{statsData.totalMatches[t]}</div>
-                                                <div className="text-[9px] font-bold text-slate-400 uppercase mt-1">Total Games</div>
+                                            <div key={t} className="p-2 rounded-xl bg-slate-50 border border-slate-100">
+                                                <span className={`w-8 h-8 flex items-center justify-center rounded-md font-black text-lg mx-auto mb-1 ${getTeamStyles(t.charCodeAt(0)-65)}`}>{t}</span>
+                                                <div className="text-lg font-black text-slate-800">{statsData.totalMatches[t]}</div>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                    <div className="bg-white rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 shadow-sm border border-slate-200 text-left">
-                                        <h3 className="text-base sm:text-lg font-black text-slate-800 mb-6 flex items-center gap-2 leading-none uppercase"><Icon.Court size={18}/> 구장 사용 빈도</h3>
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                                    <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+                                        <h3 className="text-[11px] font-black text-slate-800 mb-3 uppercase">구장 사용 빈도</h3>
                                         <div className="overflow-x-auto no-scrollbar rounded-xl border border-slate-100">
-                                            <table className="w-full text-center border-separate border-spacing-0 min-w-[300px]">
+                                            <table className="w-full text-center border-separate border-spacing-0">
                                                 <thead>
-                                                    <tr className="text-[10px] font-black text-slate-400 uppercase bg-slate-50">
-                                                        <th className="py-3 px-4 text-left font-black">Team</th>
-                                                        {Array.from({ length: config.courtCount }).map((_, i) => (
-                                                            <th key={i} className="py-3 px-2 text-black font-black whitespace-nowrap">{config.fieldNames[i] || `${i+1}구장`}</th>
-                                                        ))}
+                                                    <tr className="text-[9px] font-black text-slate-400 uppercase bg-slate-50">
+                                                        <th className="py-2 px-2 text-left">Team</th>
+                                                        {Array.from({ length: config.courtCount }).map((_, i) => (<th key={i} className="py-2 px-1 whitespace-nowrap">{config.fieldNames[i] || `${i+1}구`}</th>))}
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     {statsData?.teams.map(t => (
                                                         <tr key={t} className="hover:bg-slate-50 border-t border-slate-100">
-                                                            <td className="py-4 px-4 text-left font-black"><span className={`px-2.5 py-1 rounded-lg font-black text-xs ${getTeamStyles(t.charCodeAt(0)-65)}`}>{t}팀</span></td>
+                                                            <td className="py-2 px-2 text-left"><span className={`px-2 py-0.5 rounded-md font-black text-[10px] ${getTeamStyles(t.charCodeAt(0)-65)}`}>{t}</span></td>
                                                             {Array.from({ length: config.courtCount }).map((_, i) => (
-                                                                <td key={i} className={`py-4 px-2 font-black text-sm ${statsData.fieldUsage[t][i] === 0 ? 'text-slate-200' : 'text-slate-800'}`}>{statsData.fieldUsage[t][i]}</td>
+                                                                <td key={i} className={`py-2 px-1 font-black text-[11px] ${statsData.fieldUsage[t][i] === 0 ? 'text-slate-200' : 'text-slate-800'}`}>{statsData.fieldUsage[t][i]}</td>
                                                             ))}
                                                         </tr>
                                                     ))}
@@ -728,23 +560,21 @@
                                             </table>
                                         </div>
                                     </div>
-                                    <div className="bg-white rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 shadow-sm border border-slate-200 text-left">
-                                        <h3 className="text-base sm:text-lg font-black text-slate-800 mb-6 flex items-center gap-2 leading-none uppercase"><Icon.Users size={18}/> 상대 팀 매칭 횟수</h3>
+                                    <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+                                        <h3 className="text-[11px] font-black text-slate-800 mb-3 uppercase">상대 팀 매칭 횟수</h3>
                                         <div className="overflow-x-auto no-scrollbar rounded-xl border border-slate-100">
-                                            <table className="w-full text-center border-separate border-spacing-0 min-w-[300px]">
+                                            <table className="w-full text-center border-separate border-spacing-0">
                                                 <thead>
-                                                    <tr className="text-[10px] font-black text-slate-400 uppercase bg-slate-50">
-                                                        <th className="py-3 px-4 text-left font-black">Team</th>
-                                                        {statsData?.teams.map(t => ( <th key={t} className="py-3 px-2 font-black">{t}</th> ))}
+                                                    <tr className="text-[9px] font-black text-slate-400 uppercase bg-slate-50">
+                                                        <th className="py-2 px-2 text-left">Team</th>
+                                                        {statsData?.teams.map(t => ( <th key={t} className="py-2 px-1">{t}</th> ))}
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     {statsData?.teams.map(t => (
                                                         <tr key={t} className="hover:bg-slate-50 border-t border-slate-100">
-                                                            <td className="py-4 px-4 text-left font-black"><span className={`px-2.5 py-1 rounded-lg font-black text-xs ${getTeamStyles(t.charCodeAt(0)-65)}`}>{t}팀</span></td>
-                                                            {statsData?.teams.map(opp => (
-                                                                <td key={opp} className={`py-4 px-2 font-black text-sm ${t === opp ? 'bg-slate-50 text-slate-300' : (statsData.matchupCounts[t][opp] === 0 ? 'text-slate-200' : 'text-slate-800')}`}>{t === opp ? '-' : statsData.matchupCounts[t][opp]}</td>
-                                                            ))}
+                                                            <td className="py-2 px-2 text-left"><span className={`px-2 py-0.5 rounded-md font-black text-[10px] ${getTeamStyles(t.charCodeAt(0)-65)}`}>{t}</span></td>
+                                                            {statsData?.teams.map(opp => (<td key={opp} className={`py-2 px-1 font-black text-[11px] ${t === opp ? 'bg-slate-50 text-slate-300' : (statsData.matchupCounts[t][opp] === 0 ? 'text-slate-200' : 'text-slate-800')}`}>{t === opp ? '-' : statsData.matchupCounts[t][opp]}</td>))}
                                                         </tr>
                                                     ))}
                                                 </tbody>
@@ -756,110 +586,66 @@
                         )}
                     </main>
 
-                    {/* 불러오기 모달 */}
+                    {/* --- Modals --- */}
                     {isLoadModalOpen && (
                         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4" onClick={() => setIsLoadModalOpen(false)}>
-                            <div className="bg-white rounded-[32px] p-6 w-full max-w-md shadow-2xl animate-fade-in max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
-                                <h3 className="font-black text-xl mb-1 text-slate-800 text-center">매치 기록 불러오기</h3>
-                                <p className="text-[11px] text-slate-500 mb-6 font-bold text-center">저장된 매치 테이블 목록입니다.</p>
-                                
+                            <div className="bg-white rounded-[24px] p-6 w-full max-w-md shadow-2xl animate-fade-in max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
+                                <h3 className="font-black text-lg mb-4 text-slate-800 text-center">기록 불러오기</h3>
                                 <div className="flex-1 overflow-y-auto no-scrollbar space-y-3 mb-6">
-                                    {savedSchedules.length === 0 ? (
-                                        <div className="py-12 text-center text-slate-300 font-black text-sm">저장된 기록이 없습니다.</div>
-                                    ) : (
+                                    {savedSchedules.length === 0 ? (<div className="py-12 text-center text-slate-300 font-black text-sm">저장된 기록이 없습니다.</div>) : (
                                         savedSchedules.map(s => (
-                                            <div key={s.id} onClick={() => loadMatchSchedule(s)} className="p-4 bg-slate-50 border border-slate-200 rounded-2xl hover:border-indigo-400 hover:bg-white transition-all cursor-pointer group flex justify-between items-center">
-                                                <div className="text-left">
-                                                    <p className="text-[10px] font-black text-indigo-500 leading-none mb-1">{s.createdAt.split('T')[0]} {s.createdAt.split('T')[1].substring(0,5)}</p>
-                                                    <p className="text-sm font-black text-slate-800">{s.label}</p>
-                                                    <p className="text-[10px] font-bold text-slate-400 mt-0.5">{s.config.courtCount}개 구장 운영</p>
-                                                </div>
-                                                <button onClick={(e) => deleteSavedSchedule(s.id, e)} className="p-2.5 text-slate-300 hover:text-rose-500 transition-colors">
-                                                    <Icon.Trash size={16}/>
-                                                </button>
+                                            <div key={s.id} onClick={() => loadMatchSchedule(s)} className="p-3 bg-slate-50 border border-slate-200 rounded-xl hover:border-indigo-400 transition-all cursor-pointer flex justify-between items-center">
+                                                <div className="text-left"><p className="text-[10px] font-black text-indigo-500 mb-0.5">{s.createdAt.split('T')[0]}</p><p className="text-sm font-black text-slate-800 leading-tight">{s.label}</p></div>
+                                                <button onClick={(e) => { e.stopPropagation(); setScheduleToDelete(s.id); }} className="p-2 text-slate-300 hover:text-rose-500"><Icon.Trash size={14}/></button>
                                             </div>
                                         ))
                                     )}
-                                </div>
-                                <button onClick={() => setIsLoadModalOpen(false)} className="w-full py-4 bg-slate-100 text-slate-500 font-black rounded-2xl text-sm active:bg-slate-200 transition-all">닫기</button>
+                                </div><button onClick={() => setIsLoadModalOpen(false)} className="w-full py-3 bg-slate-100 text-slate-500 font-black rounded-xl text-sm">닫기</button>
                             </div>
                         </div>
                     )}
 
-                    {/* 프리셋 등록 모달 */}
+                    {scheduleToDelete && (
+                        <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[10000] flex items-center justify-center p-4" onClick={() => setScheduleToDelete(null)}>
+                            <div className="bg-white rounded-2xl p-6 w-full max-sm text-center" onClick={e => e.stopPropagation()}>
+                                <div className="w-14 h-14 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4"><Icon.Trash size={22} /></div>
+                                <h3 className="font-black text-lg mb-1">기록 삭제</h3>
+                                <div className="flex gap-2 mt-6"><button onClick={() => setScheduleToDelete(null)} className="flex-1 py-3 bg-slate-100 text-slate-500 font-black rounded-xl text-xs">취소</button><button onClick={async () => { try { await db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('match_schedules').doc(scheduleToDelete).delete(); setScheduleToDelete(null); } catch (e) { console.error(e); } }} className="flex-1 py-3 bg-rose-500 text-white font-black rounded-xl text-xs active:scale-95 transition-all">삭제</button></div>
+                            </div>
+                        </div>
+                    )}
+
                     {isPresetModalOpen && (
                         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4" onClick={() => setIsPresetModalOpen(false)}>
                             <div className="bg-white rounded-[24px] p-6 w-full max-w-md shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto no-scrollbar" onClick={e => e.stopPropagation()}>
-                                <h3 className="font-black text-lg mb-1 text-slate-800 text-center">새 구장 추가</h3>
-                                <div className="space-y-5 mb-8 mt-6">
-                                    <div className="flex flex-col gap-1.5 text-left">
-                                        <label className="text-[9px] font-black text-slate-400 ml-1">풋살장 이름 (메인 구장명)</label>
-                                        <input type="text" placeholder="예: HK풋살파크" className="w-full p-3.5 bg-slate-50 rounded-xl font-black text-sm border shadow-inner" value={presetForm.name} onChange={e => setPresetForm({...presetForm, name: e.target.value})} autoFocus />
-                                    </div>
-                                    <div className="flex flex-col gap-1.5 text-left">
-                                        <label className="text-[9px] font-black text-slate-400 ml-1">보유한 세부 구장 개수</label>
-                                        <div className="flex items-center justify-between bg-slate-50 p-2 rounded-xl shadow-inner">
-                                            <button onClick={() => setPresetForm(prev => ({...prev, courtCount: Math.max(1, prev.courtCount-1)}))} className="w-10 h-10 flex items-center justify-center bg-white rounded-lg font-black text-lg shadow-sm"><Icon.Minus size={14}/></button>
-                                            <div className="flex items-center gap-1 text-slate-800"><input type="number" readOnly className="w-10 text-center font-black text-xl bg-transparent" value={presetForm.courtCount} /><span className="font-bold text-xs text-slate-400">개</span></div>
-                                            <button onClick={() => setPresetForm(prev => ({...prev, courtCount: prev.courtCount+1}))} className="w-10 h-10 flex items-center justify-center bg-white rounded-lg font-black text-lg shadow-sm"><Icon.Plus size={14}/></button>
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-col gap-1.5 text-left">
-                                        <label className="text-[9px] font-black text-slate-400 ml-1">상세 정보 (이름 및 규격)</label>
-                                        <div className="grid grid-cols-1 gap-2 max-h-[200px] overflow-y-auto pr-1 no-scrollbar">
-                                            {Array.from({ length: presetForm.courtCount }).map((_, i) => (
-                                                <div key={i} className="flex gap-2 items-center bg-slate-50 p-1.5 rounded-xl border border-slate-100">
-                                                    <input type="text" className="flex-1 bg-white p-2.5 rounded-lg font-black text-xs border shadow-sm" value={presetForm.fieldNames[i] || ''} placeholder={`${i+1}번 구장`} onChange={(e) => {
-                                                        const newNames = [...presetForm.fieldNames]; newNames[i] = e.target.value; setPresetForm({...presetForm, fieldNames: newNames});
-                                                    }}/>
-                                                    <button onClick={() => {
-                                                        const newTypes = [...presetForm.fieldTypes]; newTypes[i] = newTypes[i] === "6vs6" ? "5vs5" : "6vs6"; setPresetForm({...presetForm, fieldTypes: newTypes});
-                                                    }} className={`px-3 py-2.5 rounded-lg font-black text-[10px] shrink-0 border-2 ${presetForm.fieldTypes[i] === "6vs6" ? "bg-indigo-50 border-indigo-100 text-indigo-600" : "bg-rose-50 border-rose-100 text-rose-600"}`}>{presetForm.fieldTypes[i] || '6vs6'}</button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
+                                <h3 className="font-black text-lg mb-4 text-slate-800 text-center">새 구장 추가</h3>
+                                <div className="space-y-4 mb-8">
+                                    <div className="flex flex-col gap-1 text-left"><label className="text-[9px] font-black text-slate-400 ml-1">풋살장 이름</label><input type="text" placeholder="예: HK풋살파크" className="w-full p-3 bg-slate-50 rounded-xl font-black text-sm border-none shadow-inner" value={presetForm.name} onChange={e => setPresetForm({...presetForm, name: e.target.value})} autoFocus /></div>
+                                    <div className="flex flex-col gap-1 text-left"><label className="text-[9px] font-black text-slate-400 ml-1">구장 개수</label><div className="flex items-center justify-between bg-slate-50 p-2 rounded-xl shadow-inner"><button onClick={() => setPresetForm(prev => ({...prev, courtCount: Math.max(1, prev.courtCount-1)}))} className="w-8 h-8 bg-white rounded-lg flex items-center justify-center"><Icon.Minus size={12}/></button><div className="flex items-center gap-1 font-black text-slate-800">{presetForm.courtCount}<span className="text-[10px] text-slate-400 font-bold">개</span></div><button onClick={() => setPresetForm(prev => ({...prev, courtCount: prev.courtCount+1}))} className="w-8 h-8 bg-white rounded-lg flex items-center justify-center"><Icon.Plus size={12}/></button></div></div>
+                                    <div className="flex flex-col gap-1 text-left"><label className="text-[9px] font-black text-slate-400 ml-1">상세 정보</label><div className="grid grid-cols-1 gap-2 max-h-[150px] overflow-y-auto pr-1 no-scrollbar">{Array.from({ length: presetForm.courtCount }).map((_, i) => (<div key={i} className="flex gap-2 items-center bg-slate-50 p-1.5 rounded-xl border border-slate-100"><input type="text" className="flex-1 bg-white p-2 rounded-lg font-black text-xs border-none shadow-sm" value={presetForm.fieldNames[i] || ''} placeholder={`${i+1}번 구장`} onChange={(e) => { const n = [...presetForm.fieldNames]; n[i] = e.target.value; setPresetForm({...presetForm, fieldNames: n}); }}/><button onClick={() => { const t = [...presetForm.fieldTypes]; t[i] = t[i] === "6vs6" ? "5vs5" : "6vs6"; setPresetForm({...presetForm, fieldTypes: t}); }} className="px-2 py-2 rounded-lg font-black text-[10px] border-2 transition-all bg-white border-slate-200">{presetForm.fieldTypes[i] || '6vs6'}</button></div>))}</div></div>
                                 </div>
-                                <div className="flex gap-2">
-                                    <button onClick={() => setIsPresetModalOpen(false)} className="flex-1 py-4 bg-slate-100 text-slate-500 font-black rounded-2xl text-xs active:bg-slate-200">취소</button>
-                                    <button onClick={async () => {
-                                        if(!presetForm.name.trim()) return;
-                                        await db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('court_presets').add({ ...presetForm, fieldNames: presetForm.fieldNames.slice(0, presetForm.courtCount), fieldTypes: presetForm.fieldTypes.slice(0, presetForm.courtCount), createdAt: new Date().toISOString() });
-                                        setIsPresetModalOpen(false);
-                                    }} disabled={!presetForm.name.trim()} className="flex-1 py-4 bg-indigo-600 text-white font-black rounded-2xl text-xs shadow-lg active:scale-95 disabled:opacity-50">저장하기</button>
-                                </div>
+                                <div className="flex gap-2"><button onClick={() => setIsPresetModalOpen(false)} className="flex-1 py-3 bg-slate-100 text-slate-500 font-black rounded-xl text-xs">취소</button><button onClick={async () => { if(!presetForm.name.trim()) return; await db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('court_presets').add({ ...presetForm, fieldNames: presetForm.fieldNames.slice(0, presetForm.courtCount), fieldTypes: presetForm.fieldTypes.slice(0, presetForm.courtCount), createdAt: new Date().toISOString() }); setIsPresetModalOpen(false); }} disabled={!presetForm.name.trim()} className="flex-1 py-3 bg-indigo-600 text-white font-black rounded-xl text-xs shadow-lg">저장</button></div>
                             </div>
                         </div>
                     )}
 
                     {presetToDelete && (
-                        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4" onClick={() => setPresetToDelete(null)}>
-                            <div className="bg-white rounded-[24px] p-6 w-full max-w-sm shadow-2xl animate-fade-in text-center" onClick={e => e.stopPropagation()}>
-                                <div className="w-14 h-14 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4"><Icon.Trash size={22} /></div>
-                                <h3 className="font-black text-base mb-1 text-slate-800">구장 삭제</h3>
-                                <p className="text-[11px] text-slate-500 mb-6 font-bold">정말로 이 구장을 삭제하시겠습니까?</p>
-                                <div className="flex gap-2">
-                                    <button onClick={() => setPresetToDelete(null)} className="flex-1 py-3.5 bg-slate-100 text-slate-500 font-black rounded-2xl text-xs active:bg-slate-200 transition-all">취소</button>
-                                    <button onClick={async () => { await db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('court_presets').doc(presetToDelete).delete(); setPresetToDelete(null); }} className="flex-1 py-3.5 bg-rose-500 text-white font-black rounded-2xl text-xs shadow-lg active:scale-95">삭제</button>
-                                </div>
-                            </div>
-                        </div>
+                        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4" onClick={() => setPresetToDelete(null)}><div className="bg-white rounded-2xl p-6 w-full max-w-sm text-center" onClick={e => e.stopPropagation()}>
+                            <div className="w-14 h-14 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4"><Icon.Trash size={22} /></div>
+                            <h3 className="font-black text-base mb-1">프리셋 삭제</h3>
+                            <div className="flex gap-2 mt-4"><button onClick={() => setPresetToDelete(null)} className="flex-1 py-3 bg-slate-100 text-slate-500 font-black rounded-xl text-xs">취소</button><button onClick={async () => { await db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('court_presets').doc(presetToDelete).delete(); setPresetToDelete(null); }} className="flex-1 py-3 bg-rose-500 text-white font-black rounded-xl text-xs">삭제</button></div>
+                        </div></div>
                     )}
                     
-                    <footer className="shrink-0 bg-white border-t px-4 sm:px-6 py-3 sm:py-4 flex flex-col xs:flex-row justify-between items-center gap-2 no-print text-left">
-                        <div className="flex items-center gap-3 text-slate-400 text-[9px] sm:text-[10px] font-black uppercase">
-                            <div className="flex items-center gap-1.5 font-black"><Icon.Users size={12}/> {confirmedData?.teams?.length || 0}개 팀 연동</div>
-                            <div className="w-px h-2.5 bg-slate-200"></div>
-                            <div className="flex items-center gap-1.5 font-black"><Icon.Clock size={12}/> {config.matchDuration}분 경기/{config.breakDuration}분 휴식</div>
-                        </div>
-                        <div className="text-[9px] sm:text-[10px] font-black text-indigo-300 tracking-widest uppercase">OTP FC Match Master System</div>
+                    <footer className="shrink-0 bg-white border-t px-4 py-2 flex flex-col xs:flex-row justify-between items-center gap-1 no-print">
+                        <div className="flex items-center gap-3 text-slate-400 text-[9px] font-black uppercase"><div className="flex items-center gap-1"><Icon.Users size={11}/> {confirmedData?.teams?.length || 0}개 팀</div><div className="w-px h-2 bg-slate-200"></div><div className="flex items-center gap-1"><Icon.Clock size={11}/> {config.matchDuration}분/{config.breakDuration}분</div></div>
+                        <div className="text-[9px] font-black text-indigo-300 uppercase">OTP FC Match Master</div>
                     </footer>
                 </div>
             );
         }
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        const root = ReactDOM.createRoot(document.getElementById('root')); root.render(<App />);
     </script>
 </body>
 </html>
